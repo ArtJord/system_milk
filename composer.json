@@ -1,0 +1,15 @@
+{
+    "name": "clara/trabalhophp",
+    "autoload": {
+        "psr-4": {
+            "Clara\\Trabalhophp\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Arthur",
+            "email": "arthurjordao01@gmail.com"
+        }
+    ],
+    "require": {}
+}
