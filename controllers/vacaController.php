@@ -24,9 +24,6 @@ class VacaController
                     $data->numero,
                     isset($data->nome) ? $data->nome : null,
                     isset($data->raca) ? $data->raca : null,
-                    isset($data->racao) ? $data->racao : null,
-                    isset($data->remedio) ? $data->remedio : null,
-                    isset($data->bezerro) ? $data->bezerro : null,
                     isset($data->descricao) ? $data->descricao : null
                 );
 

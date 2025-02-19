@@ -7,19 +7,16 @@ class Vaca {
         $this->conn = $db;
     }
 
-    public function create($numero, $nome = null, $raca = null, $racao = null, $remedio = null, $bezerro = false, $descricao = null) {
+    public function create($numero, $nome = null, $raca = null, $descricao = null) {
         try {
-            $query = "INSERT INTO vaca (numero, nome, raca, racao, remedio, bezerro, descricao) 
-                      VALUES (:numero, :nome, :raca, :racao, :remedio, :bezerro, :descricao)";
+            $query = "INSERT INTO vaca (numero, nome, raca, descricao) 
+                      VALUES (:numero, :nome, :raca, :descricao)";
             $stmt = $this->conn->prepare($query);
 
             
             $stmt->bindParam(':numero', $numero);
             $stmt->bindParam(':nome', $nome);
             $stmt->bindParam(':raca', $raca);
-            $stmt->bindParam(':racao', $racao);
-            $stmt->bindParam(':remedio', $remedio);
-            $stmt->bindParam(':bezerro', $bezerro);
             $stmt->bindParam(':descricao', $descricao);
 
            
