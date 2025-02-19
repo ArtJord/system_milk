@@ -1,29 +1,49 @@
 <?php
 
-class Vaca {
-    private $conn;
+class Vaca
+{
+    private $pdo;
 
-    public function __construct($db) {
-        $this->conn = $db;
+    public function __construct($db)
+    {
+        $this->pdo = $db;
     }
 
-    public function create($numero, $nome = null, $raca = null, $descricao = null) {
-        try {
-            $query = "INSERT INTO vaca (numero, nome, raca, descricao) 
-                      VALUES (:numero, :nome, :raca, :descricao)";
-            $stmt = $this->conn->prepare($query);
+    public function create($numero, $nome = null, $raca = null, $descricao = null)
+    {
+        $stmt = $this->pdo->prepare("INSERT INTO vaca (numero, nome, raca, descricao) VALUES (?, ?, ?, ?)");
+        return $stmt->execute([$numero, $nome, $raca, $descricao]);
+    }
 
-            
-            $stmt->bindParam(':numero', $numero);
-            $stmt->bindParam(':nome', $nome);
-            $stmt->bindParam(':raca', $raca);
-            $stmt->bindParam(':descricao', $descricao);
+    public function update($id, $numero, $nome = null, $raca = null, $descricao = null)
+    {
+        $stmt = $this->pdo->prepare("UPDATE vaca SET numero = ?, nome = ?, raca = ?, descricao = ? WHERE id = ?");
+        return $stmt->execute([$numero, $nome, $raca, $descricao, $id]);
+    }
 
-           
-            return $stmt->execute();
-        } catch (PDOException $e) {
-            
-            throw new Exception("Erro na consulta: " . $e->getMessage());
-        }
+    public function delete($id)
+    {
+        $stmt = $this->pdo->prepare("DELETE FROM vaca WHERE id = ?");
+        return $stmt->execute([$id]);
+    }
+
+    public function findAll()
+    {
+        $stmt = $this->pdo->query("SELECT * FROM vaca");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function findById($id)
+    {
+        // Preparando a consulta para buscar a vaca pelo id
+        $query = "SELECT * FROM vaca WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        
+        // Executando a consulta
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        // Retornando o resultado da consulta
+        return $stmt->fetch(PDO::FETCH_ASSOC); // Retorna a vaca ou null se não encontrar
     }
 }
