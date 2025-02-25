@@ -53,28 +53,44 @@ class Leite
     }
 
     
-    public function somarLeite()
-    {
-        $sql = "SELECT quantidade_litros, unidade_quantidade FROM leite";
-        $stmt = $this->pdo->prepare($sql);
+    public function somarLeite($data_inicio = null, $data_fim = null)
+{
+    // Inicia a consulta SQL
+    $sql = "SELECT quantidade_litros, unidade_quantidade FROM leite";
+
+    // Se foi passado um intervalo de datas, adicionamos isso à consulta
+    if ($data_inicio && $data_fim) {
+        $sql .= " WHERE data_fabricacao BETWEEN ? AND ?";
+    }
+
+    // Prepara a declaração
+    $stmt = $this->pdo->prepare($sql);
+
+    // Se houver intervalo de datas, passamos as datas para a execução da query
+    if ($data_inicio && $data_fim) {
+        $stmt->execute([$data_inicio, $data_fim]);
+    } else {
+        // Caso não haja intervalo de datas, executamos a query sem filtros
         $stmt->execute();
+    }
 
-        $totalLitros = 0;
+    // Variável para somar os litros
+    $totalLitros = 0;
 
-        // Processa as linhas retornadas
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            // Se for 'ml', converte para litros
-            if ($row['unidade_quantidade'] == 'ml') {
-                $quantidadeEmLitros = $row['quantidade_litros'] / 1000;
-            } else {
-                $quantidadeEmLitros = $row['quantidade_litros'];
-            }
-
-            // Soma a quantidade convertida ao total
-            $totalLitros += $quantidadeEmLitros;
+    // Processa as linhas retornadas
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        // Se a unidade for 'ml', converte para litros
+        if ($row['unidade_quantidade'] == 'ml') {
+            $quantidadeEmLitros = $row['quantidade_litros'] / 1000;
+        } else {
+            $quantidadeEmLitros = $row['quantidade_litros'];
         }
 
-        return $totalLitros;
+        // Soma a quantidade convertida ao total
+        $totalLitros += $quantidadeEmLitros;
     }
+
+    return $totalLitros;
+}
 }
 ?>

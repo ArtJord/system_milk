@@ -122,18 +122,27 @@ class LeiteController
 
     
     public function somarLeite()
-    {
-        try {
-            // Chama o método para somar a quantidade total de leite
-            $totalLeite = $this->leite->somarLeite();
+{
+    try {
+        // Obtém as datas do corpo da requisição
+        $data = json_decode(file_get_contents("php://input"));
 
-            http_response_code(200);
-            echo json_encode(["total_leite" => $totalLeite]);
-        } catch (Exception $e) {
-            // Caso haja um erro durante a soma
-            http_response_code(500);
-            echo json_encode(["message" => "Erro: " . $e->getMessage()]);
-        }
+        // Se as datas forem fornecidas, passa para o modelo, senão, considera o intervalo completo
+        $data_inicio = isset($data->data_inicio) ? $data->data_inicio : null;
+        $data_fim = isset($data->data_fim) ? $data->data_fim : null;
+
+        // Chama o método para somar a quantidade de leite no intervalo de datas
+        $totalLeite = $this->leite->somarLeite($data_inicio, $data_fim);
+
+        // Retorna o total de leite somado
+        http_response_code(200);
+        echo json_encode(["total_leite" => $totalLeite]);
+    } catch (Exception $e) {
+        // Caso haja um erro durante a soma
+        http_response_code(500);
+        echo json_encode(["message" => "Erro: " . $e->getMessage()]);
     }
 }
-?>
+
+}
+

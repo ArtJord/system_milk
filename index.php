@@ -23,6 +23,7 @@ $router->add("POST", "/leite", [$leiteController, 'create']);
 $router->add("PUT", "/editleite", [$leiteController, 'update']);
 $router->add("GET", "/allleite", [$leiteController, 'getAllLEites']);
 $router->add("DELETE", "/deleteleite", [$leiteController, 'delete']);
+$router->add("POST", "/somaleite", [$leiteController, 'somarLeite']);
 
 $requestedPath = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
 $pathItems = explode("/", trim($requestedPath, "/"));
