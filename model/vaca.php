@@ -35,15 +35,15 @@ class Vaca
 
     public function findById($id)
     {
-        // Preparando a consulta para buscar a vaca pelo id
+        
         $query = "SELECT * FROM vaca WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
         
-        // Executando a consulta
+        
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
 
-        // Retornando o resultado da consulta
+        
         return $stmt->fetch(PDO::FETCH_ASSOC); // Retorna a vaca ou null se não encontrar
     }
 }

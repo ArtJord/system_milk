@@ -8,7 +8,7 @@ class Routes
 {
     private $routes = [];
 
-    // Método para adicionar novas rotas
+    
     public function add($method, $path, $callback)
     {
         // Substituindo a variável {id} por um padrão de captura (\d+)
@@ -20,18 +20,17 @@ class Routes
         ];
     }
 
-    // Método para disparar a rota correspondente com base no método e caminho da URL
+    
     public function dispatch($requestedPath)
     {
         $requestedMethod = $_SERVER["REQUEST_METHOD"];
         
         foreach ($this->routes as $route) {
-            // Verificando se o método e a rota correspondem
+            
             if ($route['method'] === $requestedMethod && preg_match($route['path'], $requestedPath, $matches)) {
-                // Removendo o primeiro item da array, pois matches[0] será a URL completa, não o parâmetro
+                
                 array_shift($matches);
                 
-                // Chamando a função de callback (controlador) e passando os parâmetros da URL
                 return call_user_func_array($route['callback'], $matches);
             }
         }

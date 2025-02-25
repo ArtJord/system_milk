@@ -112,23 +112,23 @@ class VacaController
     // Método para buscar uma vaca por ID
     public function findById($id)
 {
-    // Certificando-se de que $id seja um número inteiro
+    
     $id = (int) $id;
 
     try {
-        // Usando o método da classe Vaca para fazer a busca no banco de dados
-        $vaca = $this->vaca->findById($id); // Assumindo que você tenha esse método na classe Vaca
+        
+        $vaca = $this->vaca->findById($id);
 
         if ($vaca) {
-            // Retornando a vaca em formato JSON
+            
             echo json_encode($vaca);
         } else {
-            // Caso não encontre a vaca
+            
             http_response_code(404);
             echo json_encode(["message" => "Vaca não encontrada"]);
         }
     } catch (Exception $e) {
-        // Tratando erros, caso algo dê errado
+        
         http_response_code(500);
         echo json_encode(["message" => "Erro ao buscar vaca: " . $e->getMessage()]);
     }
