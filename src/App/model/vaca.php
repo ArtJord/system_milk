@@ -1,5 +1,10 @@
 <?php
 
+namespace App\Model;
+
+use PDO;
+
+
 class Vaca
 {
     private $pdo;

@@ -1,5 +1,9 @@
 <?php
 
+namespace App\model;
+
+use PDO;
+
 class Leite
 {
     private $pdo;
@@ -11,14 +15,20 @@ class Leite
     }
 
     
-    public function create($data_fabricacao, $quantidade, $unidade_quantidade = 'litros')
+    public function create($data_fabricacao, $quantidade, $unidade_quantidade = 'litros', $tipo_leite = null, $criado_por = null)
     {
         
-        $stmt = $this->pdo->prepare("INSERT INTO leite (data_fabricacao, quantidade_litros, unidade_quantidade) 
-                                     VALUES (?, ?, ?)");
+        $stmt = $this->pdo->prepare("INSERT INTO leite (data_fabricacao, quantidade_litros, unidade_quantidade, tipo_leite, criado_por) 
+                                     VALUES (?, ?, ?, ?, ?)");
 
         
-        return $stmt->execute([$data_fabricacao, $quantidade, $unidade_quantidade]);
+        return $stmt->execute([
+            $data_fabricacao, 
+            $quantidade, 
+            $unidade_quantidade,
+            $tipo_leite,
+            $criado_por
+        ]);
     }
 
     public function update($id, $data_fabricacao, $quantidade, $unidade_quantidade = 'litros')

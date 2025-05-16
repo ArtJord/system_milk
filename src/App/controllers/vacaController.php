@@ -1,6 +1,10 @@
 <?php
 
-require_once __DIR__ . '/../model/Vaca.php';
+namespace App\Controllers;
+
+use App\Model\Vaca; 
+use PDO;
+use Exception;
 
 class VacaController
 {

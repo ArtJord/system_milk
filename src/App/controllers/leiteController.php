@@ -1,15 +1,21 @@
 <?php
 
-require_once __DIR__ . '/../model/leite.php';
+namespace App\controllers;
+
+use App\model\Leite;
+use PDO;
+use Exception;
 
 class LeiteController
 {
     private $leite;
+    private $user_cargo;
 
    
-    public function __construct($db)
+    public function __construct($db, $user_cargo)
     {
         $this->leite = new Leite($db);
+        $this->user_cargo = $user_cargo;
     }
 
     
@@ -24,14 +30,15 @@ class LeiteController
             return;
         }
 
-        
+        $criado_por = isset($data->criado_por) ? $data->criado_por : null;
         $unidade_quantidade = isset($data->unidade_quantidade) ? $data->unidade_quantidade : 'litros';
+        $tipo_leite = isset($data->tipo_leite) ? $data->tipo_leite : null;
 
         try {
             $resultado = $this->leite->create(
                 $data->data_fabricacao,
                 $data->quantidade,
-                $unidade_quantidade
+                $unidade_quantidade, $tipo_leite, $criado_por
             );
 
             if ($resultado) {
@@ -50,6 +57,8 @@ class LeiteController
 
     public function update()
     {
+
+        
         $data = json_decode(file_get_contents("php://input"));
 
         
@@ -96,6 +105,12 @@ class LeiteController
     
     public function delete()
     {
+
+        if($this->user_cargo != 'gerente'){
+            http_response_code(403);
+            echo json_encode(["message" => "Apenas o gerente pode excluir"]);
+        }
+
         $data = json_decode(file_get_contents("php://input"));
 
         if (!isset($data->id)) {

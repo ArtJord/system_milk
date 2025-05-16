@@ -2,7 +2,7 @@
     "name": "clara/trabalhophp",
     "autoload": {
         "psr-4": {
-            "Clara\\Trabalhophp\\": "src/"
+            "App\\": "src/App/"
         }
     },
     "authors": [
