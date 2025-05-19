@@ -1,247 +1,204 @@
-
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Teste API - Vaca e Leite</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Teste de Rotas - Lucro</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 2rem;
-      background-color: #f8f8f8;
+      padding: 2rem;
+      background-color: #f5f5f5;
     }
-
-    h2 {
-      margin-top: 2rem;
+    h1 {
+      color: #2e4d3d;
     }
-
-    form {
+    form, .actions {
       background: #fff;
       padding: 1rem;
+      margin-bottom: 1.5rem;
       border-radius: 8px;
-      box-shadow: 0 0 10px #ccc;
-      margin-bottom: 2rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-
-    label {
-      display: block;
-      margin-top: 0.5rem;
-    }
-
-    input, select {
-      width: 100%;
+    input, button {
       padding: 0.5rem;
-      margin-top: 0.3rem;
+      margin: 0.3rem 0;
+      width: 100%;
+      box-sizing: border-box;
     }
-
     button {
-      margin-top: 1rem;
-      padding: 0.7rem 1rem;
-      background-color: #28a745;
+      background-color: #4b6c4b;
       color: white;
       border: none;
       cursor: pointer;
     }
-
     button:hover {
-      background-color: #218838;
+      background-color: #3e593e;
     }
-
-    pre {
-      background: #eee;
+    .result {
+      background: #e0ffe0;
       padding: 1rem;
       white-space: pre-wrap;
-      border-radius: 5px;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+    }
+
+    /* Estilo da tabela de lucros */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.5rem 0.8rem;
+      text-align: left;
+    }
+    th {
+      background-color: #4b6c4b;
+      color: white;
+    }
+    tbody tr:nth-child(even) {
+      background-color: #f9f9f9;
     }
   </style>
 </head>
 <body>
 
-  <h1>🐮 Painel de Teste da API</h1>
+  <h1>Testar Rotas de Lucro</h1>
 
-  <h2>Cadastrar Vaca</h2>
-  <form id="form-vaca">
-    <label>Número:</label>
-    <input type="text" name="numero" required />
-
-    <label>Nome:</label>
-    <input type="text" name="nome" />
-
-    <label>Raça:</label>
-    <input type="text" name="raca" />
-
-    <label>Descrição:</label>
-    <input type="text" name="descricao" />
-
-    <button type="submit">Cadastrar Vaca</button>
+  <form id="formCreate">
+    <h2>Criar Lucro</h2>
+    <input type="text" name="origem" placeholder="Origem" required />
+    <input type="number" name="quantidade" placeholder="Quantidade" required />
+    <input type="number" step="0.01" name="valor" placeholder="Valor" required />
+    <input type="date" name="data" required />
+    <input type="text" name="tipo" placeholder="Tipo (opcional)" />
+    <input type="text" name="nota_fiscal" placeholder="Nota Fiscal (opcional)" />
+    <button type="submit">Enviar</button>
   </form>
 
-   
-  <h2>Registrar Leite</h2>
-  <form id="form-leite">
-    <label>Data de Fabricação:</label>
-    <input type="date" name="data_fabricacao" required />
-
-    <label>Quantidade:</label>
-    <input type="number" name="quantidade" required />
-
-    <label>Unidade:</label>
-    <select name="unidade_quantidade">
-      <option value="litros">Litros</option>
-      <option value="ml">ML</option>
-    </select>
-
-    <button type="submit">Registrar Leite</button>
+  <form id="formUpdate">
+    <h2>Atualizar Lucro</h2>
+    <input type="number" name="id" placeholder="ID do Lucro" required />
+    <input type="text" name="origem" placeholder="Origem" required />
+    <input type="number" name="quantidade" placeholder="Quantidade" required />
+    <input type="number" step="0.01" name="valor" placeholder="Valor" required />
+    <input type="date" name="data" required />
+    <input type="text" name="tipo" placeholder="Tipo (opcional)" />
+    <input type="text" name="nota_fiscal" placeholder="Nota Fiscal (opcional)" />
+    <button type="submit">Atualizar</button>
   </form>
 
- 
-  <h2>Somar Leite</h2>
-  <form id="form-soma">
-    <label>Data Início:</label>
-    <input type="date" name="data_inicio" />
+  <div class="actions">
+    <h2>Buscar Todos</h2>
+    <button onclick="getAll()">GET /lucros</button>
+  </div>
 
-    <label>Data Fim:</label>
-    <input type="date" name="data_fim" />
+  <div class="actions">
+    <h2>Deletar</h2>
+    <input type="number" id="deleteId" placeholder="ID do Lucro" />
+    <button onclick="deleteLucro()">DELETE /lucro/{id}</button>
+  </div>
 
-    <button type="submit">Somar</button>
-  </form>
+  <div class="result" id="resultArea"></div>
 
-  <h2>📄 Resultados</h2>
-  <button onclick="buscarVacas()">Listar Vacas</button>
-  <button onclick="buscarLeite()">Listar Leite</button>
-  <pre id="resposta">Aguardando requisições...</pre>
+  <!-- Div onde a tabela vai aparecer -->
+  <div id="tabelaLucros"></div>
 
   <script>
-    const apiBase = "http://localhost:8001"; // Altere se necessário
+    const apiUrl = "http://localhost:8001"; // ajuste conforme necessário
 
-    const resposta = document.getElementById("resposta");
-
-    // Cadastro de vaca
-    document.getElementById("form-vaca").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const form = e.target;
-  const data = {
-    numero: form.numero.value,
-    nome: form.nome.value,
-    raca: form.raca.value,
-    descricao: form.descricao.value
-  };
-
-  try {
-    const res = await fetch(`${apiBase}/vaca`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
-    const json = await res.json();
-    resposta.textContent = JSON.stringify(json, null, 2);
-
-    if (res.ok) {
-      alert("✅ Vaca cadastrada com sucesso!");
-      form.reset(); // limpa os campos
-    } else {
-      alert("❌ Erro ao cadastrar a vaca.");
-    }
-  } catch (error) {
-    alert("❌ Erro na requisição.");
-    console.error(error);
-  }
-});
-
-
-    // Cadastro de leite
-    document.getElementById("form-leite").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const form = e.target;
-  const data = {
-    data_fabricacao: form.data_fabricacao.value,
-    quantidade: parseFloat(form.quantidade.value),
-    unidade_quantidade: form.unidade_quantidade.value
-  };
-
-  try {
-    const res = await fetch(`${apiBase}/leite`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
-    const json = await res.json();
-    resposta.textContent = JSON.stringify(json, null, 2);
-
-    if (res.ok) {
-      alert("✅ Leite registrado com sucesso!");
+    document.getElementById("formCreate").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const data = Object.fromEntries(new FormData(form));
+      const res = await fetch(`${apiUrl}/lucro`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+      const result = await res.json().catch(() => res.text());
+      showResult(result);
       form.reset();
-    } else {
-      alert("❌ Erro ao registrar leite.");
-    }
-  } catch (error) {
-    alert("❌ Erro na requisição.");
-    console.error(error);
-  }
-});
-
-
-    // Soma de leite
-    document.getElementById("form-soma").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const form = e.target;
-  const data = {
-    data_inicio: form.data_inicio.value,
-    data_fim: form.data_fim.value
-  };
-
-  try {
-    const res = await fetch(`${apiBase}/somaleite`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
     });
-    const json = await res.json();
-    resposta.textContent = JSON.stringify(json, null, 2);
 
-    if (res.ok) {
-      alert("✅ Soma realizada!");
+    document.getElementById("formUpdate").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const formData = Object.fromEntries(new FormData(form));
+      const id = formData.id;
+      delete formData.id;
+
+      const res = await fetch(`${apiUrl}/lucro/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      });
+      const result = await res.json().catch(() => res.text());
+      showResult(result);
       form.reset();
-    } else {
-      alert("❌ Erro ao somar leite.");
+    });
+
+    async function getAll() {
+      const res = await fetch(`${apiUrl}/lucros`);
+      const data = await res.json().catch(() => res.text());
+      
+      //showResult(data);
+
+      if (typeof data === "object") {
+        exibirTabela(data);
+      } else {
+        document.getElementById('tabelaLucros').innerHTML = '';
+      }
     }
-  } catch (error) {
-    alert("❌ Erro na requisição.");
-    console.error(error);
-  }
-});
 
+    async function deleteLucro() {
+      const input = document.getElementById("deleteId");
+      const id = input.value;
+      if (!id) return alert("Informe o ID");
+      const res = await fetch(`${apiUrl}/lucro/${id}`, { method: "DELETE" });
+      const result = await res.json().catch(() => res.text());
+      showResult(result);
+      input.value = "";
+    }
 
-    // Buscar vacas
-    window.buscarVacas = async function () {
-  try {
-    const res = await fetch(`${apiBase}/vacas`);
-    const json = await res.json();
-    resposta.textContent = JSON.stringify(json, null, 2);
-  } catch (error) {
-    resposta.textContent = "❌ Erro ao buscar vacas.";
-    console.error(error);
-  }
-};
+    function showResult(data) {
+      const area = document.getElementById("resultArea");
+      area.textContent = typeof data === "string" ? data : JSON.stringify(data, null, 2);
+    }
 
+    function exibirTabela(data) {
+      if (!data.lucros || !Array.isArray(data.lucros) || data.lucros.length === 0) {
+        document.getElementById('tabelaLucros').innerHTML = '<p>Nenhum dado para exibir.</p>';
+        return;
+      }
 
-    // Buscar leite
-    window.buscarLeite = async function () {
-  try {
-    const res = await fetch(`${apiBase}/allleite`);
-    const json = await res.json();
-    resposta.textContent = JSON.stringify(json, null, 2);
-  } catch (error) {
-    resposta.textContent = "❌ Erro ao buscar leite.";
-    console.error(error);
-  }
-};
+      const lucros = data.lucros;
+      let tabelaHTML = '<table><thead><tr>';
 
+      const colunas = Object.keys(lucros[0]);
+      colunas.forEach(col => {
+        tabelaHTML += `<th>${col.charAt(0).toUpperCase() + col.slice(1).replace(/_/g, ' ')}</th>`;
+      });
+      tabelaHTML += '</tr></thead><tbody>';
+
+      lucros.forEach(item => {
+        tabelaHTML += '<tr>';
+        colunas.forEach(col => {
+          tabelaHTML += `<td>${item[col]}</td>`;
+        });
+        tabelaHTML += '</tr>';
+      });
+
+      tabelaHTML += '</tbody></table>';
+
+      document.getElementById('tabelaLucros').innerHTML = tabelaHTML;
+    }
   </script>
 </body>
 </html>
-
-
-

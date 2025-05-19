@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Teste de Rotas API</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    padding: 2rem;
+    background: #f9f9f9;
+  }
+  h1 {
+    color: #2e4d3d;
+  }
+  button {
+    background-color: #4b6c4b;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    margin: 5px 10px 5px 0;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  button:hover {
+    background-color: #3e593e;
+  }
+  pre {
+    background: #e0ffe0;
+    padding: 1rem;
+    border-radius: 6px;
+    max-height: 400px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+  }
+</style>
+</head>
+<body>
+
+<h1>Testar Rotas da API</h1>
+
+<div>
+  <button onclick="getVacas()">GET /vacas</button>
+  <button onclick="getLeites()">GET /allleite</button>
+  <button onclick="getDespesas()">GET /despesas</button>
+  <button onclick="getLucros()">GET /lucros</button>
+</div>
+
+<h2>Resultado:</h2>
+<pre id="output">Clique em um botão para testar a rota.</pre>
+
+<script>
+  const apiBase = 'http://localhost:8001'; // Ajuste para o endereço do seu backend
+
+  async function fetchAndShow(url) {
+    try {
+      const res = await fetch(apiBase + url);
+      if (!res.ok) throw new Error('Erro na requisição: ' + res.status);
+      const data = await res.json();
+      document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+    } catch (err) {
+      document.getElementById('output').textContent = 'Erro: ' + err.message;
+    }
+  }
+
+  function getVacas() {
+    fetchAndShow('/vacas');
+  }
+
+  function getLeites() {
+    fetchAndShow('/allleite');
+  }
+
+  function getDespesas() {
+    fetchAndShow('/despesas');
+  }
+
+  function getLucros() {
+    fetchAndShow('/lucros');
+  }
+</script>
+
+</body>
+</html>

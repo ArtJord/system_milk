@@ -41,14 +41,14 @@ $router->add("POST", "/login", [$usuarioController, 'login']);
 
 // Registrando rotas de Despesas
 $router->add("POST", "/despesa", [$despesaController, 'create']);
-$router->add("GET", "/despesas", [$despesaController,  'findAll']);
+$router->add("GET", "/despesas", [$despesaController,  'getAllDespesas']);
 $router->add("GET", "/despesas/{id}", [$despesaController, 'findById']);
 $router->add("PUT", "/despesa/{id}", [$despesaController, 'update']);
 $router->add("DELETE", "/despesa/{id}", [$despesaController, 'delete']);
 
 // Registrando rotas de Lucros
 $router->add("POST", "/lucro", [$lucroController, 'create']); 
-$router->add("GET", "/lucros", [$lucroController, 'findAll']); 
+$router->add("GET", "/lucros", [$lucroController, 'getAllLucros']); 
 $router->add("GET", "/lucro/{id}", [$lucroController, 'findById']); 
 $router->add("PUT", "/lucro/{id}", [$lucroController, 'update']); 
 $router->add("DELETE", "/lucro/{id}", [$lucroController, 'delete']);
