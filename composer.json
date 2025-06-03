@@ -11,5 +11,7 @@
             "email": "arthurjordao01@gmail.com"
         }
     ],
-    "require": {}
+    "require-dev": {
+        "phpunit/phpunit": "^11.5"
+    }
 }

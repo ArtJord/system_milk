@@ -44,6 +44,6 @@ class usuario
 
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $usuario && $usuario['crago'] === $cargo_necessario;
+        return $usuario && $usuario['cargo'] === $cargo_necessario;
     }
 }

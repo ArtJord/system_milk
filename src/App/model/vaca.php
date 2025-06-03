@@ -49,6 +49,6 @@ class Vaca
         $stmt->execute();
 
         
-        return $stmt->fetch(PDO::FETCH_ASSOC); // Retorna a vaca ou null se não encontrar
+        return $stmt->fetch(PDO::FETCH_ASSOC); 
     }
 }

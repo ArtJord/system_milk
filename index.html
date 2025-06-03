@@ -94,6 +94,44 @@
     <button type="submit">Atualizar</button>
   </form>
 
+  <h1>Cadastro de Leite</h1>
+
+<form id="formCreateLeite">
+  <h2>Cadastrar Leite</h2>
+  <input type="date" name="data_fabricacao" placeholder="Data de Fabricação" required />
+  <input type="number" step="0.01" name="quantidade" placeholder="Quantidade" required />
+  <input type="text" name="unidade_quantidade" placeholder="Unidade (litros/ml)" value="litros" required />
+  <input type="text" name="tipo_leite" placeholder="Tipo de Leite (opcional)" />
+  <input type="text" name="criado_por" placeholder="Criado por (opcional)" />
+  <button type="submit">Cadastrar</button>
+</form>
+
+<form id="formUpdateLeite">
+  <h2>Atualizar Leite</h2>
+  <input type="number" name="id" placeholder="ID do Leite" required />
+  <input type="date" name="data_fabricacao" required />
+  <input type="number" step="0.01" name="quantidade" placeholder="Quantidade" required />
+  <select name="unidade_quantidade" required>
+  <option value="litros">Litros</option>
+  <option value="ml">Mililitros (ml)</option>
+</select>
+  <button type="submit">Atualizar</button>
+</form>
+
+<div class="actions">
+  <h2>Buscar Todos os Leites</h2>
+  <button onclick="getAllLeite()">GET /leites</button>
+</div>
+
+<div class="actions">
+  <h2>Deletar Leite</h2>
+  <input type="number" id="deleteIdLeite" placeholder="ID do Leite" />
+  <button onclick="deleteLeite()">DELETE /leite/{id}</button>
+</div>
+
+<div class="result" id="resultLeite"></div>
+<div id="tabelaLeite"></div>
+
   <div class="actions">
     <h2>Buscar Todos</h2>
     <button onclick="getAll()">GET /lucros</button>
@@ -199,6 +237,97 @@
 
       document.getElementById('tabelaLucros').innerHTML = tabelaHTML;
     }
+
+    // CADASTRO
+document.getElementById("formCreateLeite").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const data = Object.fromEntries(new FormData(form));
+  const res = await fetch(`${apiUrl}/leite`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+  const result = await res.json().catch(() => res.text());
+  showResultLeite(result);
+  form.reset();
+});
+
+// ATUALIZAÇÃO
+document.getElementById("formUpdateLeite").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const formData = Object.fromEntries(new FormData(form));
+  const id = formData.id;
+  delete formData.id;
+
+  const res = await fetch(`${apiUrl}/leite/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(formData)
+  });
+  const result = await res.json().catch(() => res.text());
+  showResultLeite(result);
+  form.reset();
+});
+
+// LISTAR
+async function getAllLeite() {
+  const res = await fetch(`${apiUrl}/leites`);
+  const data = await res.json().catch(() => res.text());
+
+  if (typeof data === "object") {
+    exibirTabelaLeite(data);
+  } else {
+    document.getElementById('tabelaLeite').innerHTML = '';
+  }
+}
+
+// DELETAR
+async function deleteLeite() {
+  const input = document.getElementById("deleteIdLeite");
+  const id = input.value;
+  if (!id) return alert("Informe o ID");
+  const res = await fetch(`${apiUrl}/leite/${id}`, { method: "DELETE" });
+  const result = await res.json().catch(() => res.text());
+  showResultLeite(result);
+  input.value = "";
+}
+
+// RESULTADO
+function showResultLeite(data) {
+  const area = document.getElementById("resultLeite");
+  area.textContent = typeof data === "string" ? data : JSON.stringify(data, null, 2);
+}
+
+// TABELA
+function exibirTabelaLeite(data) {
+  if (!data.leites || !Array.isArray(data.leites) || data.leites.length === 0) {
+    document.getElementById('tabelaLeite').innerHTML = '<p>Nenhum dado para exibir.</p>';
+    return;
+  }
+
+  const leites = data.leites;
+  let tabelaHTML = '<table><thead><tr>';
+
+  const colunas = Object.keys(leites[0]);
+  colunas.forEach(col => {
+    tabelaHTML += `<th>${col.charAt(0).toUpperCase() + col.slice(1).replace(/_/g, ' ')}</th>`;
+  });
+  tabelaHTML += '</tr></thead><tbody>';
+
+  leites.forEach(item => {
+    tabelaHTML += '<tr>';
+    colunas.forEach(col => {
+      tabelaHTML += `<td>${item[col]}</td>`;
+    });
+    tabelaHTML += '</tr>';
+  });
+
+  tabelaHTML += '</tbody></table>';
+
+  document.getElementById('tabelaLeite').innerHTML = tabelaHTML;
+}
   </script>
 </body>
 </html>
