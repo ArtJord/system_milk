@@ -1,100 +1,88 @@
-name: Leiteria Milk Bom
-description: >
-  Projeto de TCC para gestão de uma leiteria, com controle de vacas, produção de leite
-  e demais operações do cotidiano rural. Utiliza PHP com padrão DAO e, futuramente,
-  contará com um front-end moderno usando Vue.js.
+# 🐄 Sistema de Gestão de Leiteria - TCC
 
-version: 1.0.0
+Este é um projeto de **Trabalho de Conclusão de Curso (TCC)** com o objetivo de desenvolver um sistema para auxiliar na **gestão de uma leiteria**, permitindo o controle de vacas, produção de leite e geração de relatórios.
 
-author:
-  name: Seu Nome Aqui
-  email: seuemail@email.com
-  linkedin: https://www.linkedin.com/in/seu-usuario
-  github: https://github.com/seu-usuario
+> 💻 Desenvolvido com **PHP + PostgreSQL* utilizando o padrão **DAO**, com planos de futura integração com **Vue.js** para um front-end moderno e dinâmico.
 
-status: "Em desenvolvimento"
-license: MIT
+---
 
-features:
-  - Cadastro e gerenciamento de vacas
-  - Registro da produção de leite
-  - Relatórios de produtividade
-  - API RESTful com PHP
-  - Integração futura com Vue.js no front-end
-  - Arquitetura organizada usando DAO (Data Access Object)
+## 🚀 Funcionalidades
 
-tech_stack:
-  backend:
-    language: PHP
-    architecture: DAO (Data Access Object)
-    database: MySQL
-    server: Apache ou servidor embutido PHP
-  frontend:
-    current: HTML, CSS, JavaScript simples
-    future: Vue.js
-  tools:
-    - Postman (para testar API)
-    - Git & GitHub (controle de versão)
-    - XAMPP ou similar (ambiente local)
+- ✅ Cadastro e gerenciamento de vacas
+- 🥛 Registro da produção de leite
+- 📊 Relatórios de produtividade (diário/mensal)
+- 🔌 API RESTful desenvolvida em PHP
+- 🗃️ Organização do código com DAO (Data Access Object)
+- 🌐 Integração futura com Vue.js
 
-project_structure:
-  - backend/
-      - controllers/
-      - models/
-      - dao/
-      - config/
-      - index.php
-      - .htaccess
-  - frontend/
-      - public/
-        - index.html
-        - css/
-        - js/
-      - vue-src/ # futuro código Vue
-  - database/
-      - leitera.sql
-  - README.md
+---
 
-requirements:
-  php: ">=7.4"
-  mysql: ">=5.7"
-  node: opcional (para futura integração com Vue.js)
-  composer: opcional (caso use bibliotecas externas)
+## 🛠️ Tecnologias Utilizadas
 
-installation:
-  steps:
-    - Clonar o repositório:
-      command: git clone https://github.com/seu-usuario/leitera-tcc.git
-    - Importar o banco de dados:
-      file: database/leitera.sql
-    - Configurar conexão com o banco:
-      file: backend/config/Database.php
-    - Iniciar servidor local (modo simples):
-      command: php -S localhost:8000 -t backend
-    - Acessar via navegador:
-      url: http://localhost:8000
+### 🔙 Back-end
+- **PHP 7.4+**
+- **PostgreSQL**
+- **Padrão DAO**
+- Servidor embutido do PHP
 
-api_example:
-  endpoint: /vacas/create
-  method: POST
-  body:
-    numero: 123
-    status: "ativa"
-  response:
-    success: true
-    message: "Vaca cadastrada com sucesso"
+### 🔜 Front-end (em desenvolvimento futuro)
+- HTML, CSS e JS puro (versão atual)
+- Vue.js (versão futura)
 
-future_features:
-  - Painel administrativo com Vue.js
-  - Login com autenticação
-  - Dashboard com gráficos de produção
-  - Controle de alimentação e saúde dos animais
+### 🧪 Ferramentas de Apoio
+- **Postman** – testes da API
+- **Git e GitHub** – controle de versão
 
-academic_info:
-  institution: Nome da sua faculdade
-  course: Nome do seu curso
-  project_type: Trabalho de Conclusão de Curso (TCC)
-  advisor: Nome do orientador
+---
 
-quote: "🐄 Onde tem leite, tem sistema!"
+## 📮 Exemplo de Requisição à API
+
+### ✅ POST `/vacas/create`
+
+**Corpo da requisição:**
+
+```json
+{
+  "numero": 123,
+  "status": "ativa"
+}
+```
+
+### Resposta esperada:
+
+```json
+{
+  "success": true,
+  "message": "Vaca cadastrada com sucesso"
+}
+```
+---
+
+## 📈 Funcionalidades Futuras
+
+- [ ] Integração com **Vue.js**
+- [ ] Painel administrativo com gráficos (dashboard)
+- [ ] Login com autenticação e segurança
+- [ ] Controle de alimentação e saúde dos animais
+- [ ] Notificações de produtividade e status
+
+---
+
+## 🎓 Informações Acadêmicas
+
+- **Projeto:** Trabalho de Conclusão de Curso (TCC)
+- **Curso:** *Engenharia de Software*
+- **Ano:** 2025
+
+---
+
+## 👤 Autor
+
+- **Nome:** *Arthur Jordão*
+
+---
+
+> 🧀 **"Onde tem leite, tem sistema!"**  
+> 📅 Projeto iniciado em 2025 – com muito suor, código e café ☕
+
 
