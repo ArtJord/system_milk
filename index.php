@@ -61,6 +61,7 @@ if (count($pathItems) >= 1) {
     $requestedPath = "/" . $pathItems[0];
     if (count($pathItems) > 1) {
         $requestedPath .= "/" . $pathItems[1]; 
+       
     }
 } else {
     $requestedPath = "/"; 

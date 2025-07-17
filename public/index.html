@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<title>Login / Cadastro</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 40px; }
+  label { display: block; margin-top: 10px; }
+  input, select { padding: 8px; width: 250px; margin-top: 5px; }
+  button { padding: 10px 20px; margin-top: 20px; margin-right: 10px; }
+  #resposta { margin-top: 20px; color: red; }
+</style>
+</head>
+<body>
+
+<h2 id="titulo">Login</h2>
+
+<!-- Form Login -->
+<div id="loginDiv">
+  <label for="emailLogin">E-mail:</label>
+  <input type="email" id="emailLogin" required />
+
+  <label for="senhaLogin">Senha:</label>
+  <input type="password" id="senhaLogin" required />
+
+  <label for="cargoLogin">Cargo:</label>
+  <select id="cargoLogin" required>
+    <option value="">-- Selecione o cargo --</option>
+    <option value="Administrador">Administrador</option>
+    <option value="Gerente">Gerente</option>
+    <option value="Funcionario">Funcionario</option>
+  </select>
+
+  <br />
+  <button id="btnEntrar">Entrar</button>
+  <button id="btnVaiCadastro">Cadastrar</button>
+</div>
+
+<!-- Form Cadastro -->
+<div id="cadastroDiv" style="display:none;">
+  <label for="nomeCadastro">Nome:</label>
+  <input type="text" id="nomeCadastro" required />
+
+  <label for="emailCadastro">E-mail:</label>
+  <input type="email" id="emailCadastro" required />
+
+  <label for="senhaCadastro">Senha:</label>
+  <input type="password" id="senhaCadastro" required />
+
+  <label for="cargoCadastro">Cargo:</label>
+  <select id="cargoCadastro" required>
+    <option value="">-- Selecione o cargo --</option>
+    <option value="Administrador">Administrador</option>
+    <option value="Gerente">Gerente</option>
+    <option value="Funcionario">Funcionario</option>
+  </select>
+
+  <br />
+  <button id="btnCadastrar">Cadastrar</button>
+  <button id="btnVoltarLogin">Voltar ao Login</button>
+</div>
+
+<div id="resposta"></div>
+
+<script>
+  const loginDiv = document.getElementById("loginDiv");
+  const cadastroDiv = document.getElementById("cadastroDiv");
+  const titulo = document.getElementById("titulo");
+  const respostaDiv = document.getElementById("resposta");
+
+  document.getElementById("btnVaiCadastro").addEventListener("click", () => {
+    // Mostrar cadastro, esconder login
+    loginDiv.style.display = "none";
+    cadastroDiv.style.display = "block";
+    titulo.textContent = "Cadastro";
+    respostaDiv.textContent = "";
+  });
+
+  document.getElementById("btnVoltarLogin").addEventListener("click", () => {
+    // Mostrar login, esconder cadastro
+    cadastroDiv.style.display = "none";
+    loginDiv.style.display = "block";
+    titulo.textContent = "Login";
+    respostaDiv.textContent = "";
+  });
+
+  // Função para fazer login
+  async function fazerLogin() {
+    respostaDiv.style.color = "black";
+    respostaDiv.textContent = "Entrando...";
+
+    const email = document.getElementById("emailLogin").value.trim();
+    const senha = document.getElementById("senhaLogin").value.trim();
+    const cargo = document.getElementById("cargoLogin").value.toLowerCase();
+
+    if (!email || !senha || !cargo) {
+      respostaDiv.style.color = "red";
+      respostaDiv.textContent = "Preencha todos os campos.";
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:8001/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, senha }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // Verificar cargo no retorno (supondo que vem no data.usuario.cargo)
+        if(data.usuario && data.usuario.cargo === cargo){
+          localStorage.setItem("usuario", JSON.stringify(data.usuario));
+          window.location.href = "dashboard.html";
+        } else {
+          respostaDiv.style.color = "red";
+          respostaDiv.textContent = "Cargo incorreto para este usuário.";
+        }
+      } else {
+        respostaDiv.style.color = "red";
+        respostaDiv.textContent = data.message || "Erro no login.";
+      }
+    } catch (err) {
+      respostaDiv.style.color = "red";
+      respostaDiv.textContent = "Erro ao conectar com o servidor.";
+      console.error(err);
+    }
+  }
+
+  // Função para fazer cadastro
+  async function fazerCadastro() {
+    respostaDiv.style.color = "black";
+    respostaDiv.textContent = "Cadastrando...";
+
+    const nome = document.getElementById("nomeCadastro").value.trim();
+    const email = document.getElementById("emailCadastro").value.trim();
+    const senha = document.getElementById("senhaCadastro").value.trim();
+    const cargo = document.getElementById("cargoCadastro").value.toLowerCase();
+
+    if (!nome || !email || !senha || !cargo) {
+      respostaDiv.style.color = "red";
+      respostaDiv.textContent = "Preencha todos os campos.";
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:8001/usuario", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nome, email, senha, cargo }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        respostaDiv.style.color = "green";
+        respostaDiv.textContent = "Usuário criado com sucesso! Fazendo login...";
+
+        // Após criar, faz login automático
+        setTimeout(() => {
+          // Coloca os dados de login no form e chama o login
+          document.getElementById("emailLogin").value = email;
+          document.getElementById("senhaLogin").value = senha;
+          document.getElementById("cargoLogin").value = cargo;
+
+          cadastroDiv.style.display = "none";
+          loginDiv.style.display = "block";
+          titulo.textContent = "Login";
+          respostaDiv.textContent = "";
+
+          fazerLogin();
+        }, 1000);
+      } else {
+        respostaDiv.style.color = "red";
+        respostaDiv.textContent = data.message || "Erro ao cadastrar usuário.";
+      }
+    } catch (err) {
+      respostaDiv.style.color = "red";
+      respostaDiv.textContent = "Erro ao conectar com o servidor.";
+      console.error(err);
+    }
+  }
+
+  // Eventos dos botões
+  document.getElementById("btnEntrar").addEventListener("click", fazerLogin);
+  document.getElementById("btnCadastrar").addEventListener("click", fazerCadastro);
+</script>
+
+</body>
+</html>

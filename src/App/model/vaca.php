@@ -4,7 +4,6 @@ namespace App\Model;
 
 use PDO;
 
-
 class Vaca
 {
     private $pdo;
@@ -14,41 +13,92 @@ class Vaca
         $this->pdo = $db;
     }
 
-    public function create($numero, $nome = null, $raca = null, $descricao = null)
-    {
-        $stmt = $this->pdo->prepare("INSERT INTO vaca (numero, nome, raca, descricao) VALUES (?, ?, ?, ?)");
-        return $stmt->execute([$numero, $nome, $raca, $descricao]);
+    public function create(
+        $numero_animal,
+        $nome_animal = null,
+        $raca = null,
+        $sexo = null,
+        $data_nascimento = null,
+        $peso_kg = null,
+        $cor = null,
+        $statuss = null,
+        $estado_saude = null,
+        $ultima_vacinacao = null,
+        $proxima_vacinacao = null,
+        $status_reprodutivo = null,
+        $producao_diaria_litros = null,
+        $foto = null,
+        $observacoes = null,
+        $criado_em = null
+    ) {
+        $sql = "INSERT INTO animais (
+            numero_animal,
+            nome_animal,
+            raca,
+            sexo,
+            data_nascimento,
+            peso_kg,
+            cor,
+            statuss,
+            estado_saude,
+            ultima_vacinacao,
+            proxima_vacinacao,
+            status_reprodutivo,
+            producao_diaria_litros,
+            foto,
+            observacoes,
+            criado_em
+        ) VALUES (
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        )";
+
+        $stmt = $this->pdo->prepare($sql);
+
+        return $stmt->execute([
+            $numero_animal,
+            $nome_animal,
+            $raca,
+            $sexo,
+            $data_nascimento,
+            $peso_kg,
+            $cor,
+            $statuss,
+            $estado_saude,
+            $ultima_vacinacao,
+            $proxima_vacinacao,
+            $status_reprodutivo,
+            $producao_diaria_litros,
+            $foto,
+            $observacoes,
+            $criado_em
+        ]);
     }
 
-    public function update($id, $numero, $nome = null, $raca = null, $descricao = null)
+    public function update($id, $numero_animal, $nome_animal = null, $raca = null, $observacoes = null)
     {
-        $stmt = $this->pdo->prepare("UPDATE vaca SET numero = ?, nome = ?, raca = ?, descricao = ? WHERE id = ?");
-        return $stmt->execute([$numero, $nome, $raca, $descricao, $id]);
+        $stmt = $this->pdo->prepare("UPDATE animais SET numero_animal = ?, nome_animal = ?, raca = ?, observacoes = ? WHERE id = ?");
+        return $stmt->execute([$numero_animal, $nome_animal, $raca, $observacoes, $id]);
     }
 
     public function delete($id)
     {
-        $stmt = $this->pdo->prepare("DELETE FROM vaca WHERE id = ?");
+        $stmt = $this->pdo->prepare("DELETE FROM animais WHERE id = ?");
         return $stmt->execute([$id]);
     }
 
     public function findAll()
     {
-        $stmt = $this->pdo->query("SELECT * FROM vaca");
+        $stmt = $this->pdo->query("SELECT * FROM animais");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function findById($id)
     {
-        
-        $query = "SELECT * FROM vaca WHERE id = :id";
+        $query = "SELECT * FROM animais WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
-        
-        
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
 
-        
-        return $stmt->fetch(PDO::FETCH_ASSOC); 
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }

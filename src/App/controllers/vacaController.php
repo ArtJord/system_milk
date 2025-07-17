@@ -16,36 +16,50 @@ class VacaController
     }
 
     // Método para criar uma nova vaca
-    public function create()
-    {
-        $data = json_decode(file_get_contents("php://input"));
+  public function create()
+{
+    $data = json_decode(file_get_contents("php://input"));
 
-        if (!isset($data->numero)) {
-            http_response_code(400);
-            echo json_encode(["message" => "O número é obrigatório."]);
-            return;
-        }
-
-        try {
-            $resultado = $this->vaca->create(
-                $data->numero,
-                isset($data->nome) ? $data->nome : null,
-                isset($data->raca) ? $data->raca : null,
-                isset($data->descricao) ? $data->descricao : null
-            );
-
-            if ($resultado) {
-                http_response_code(200);
-                echo json_encode(["message" => "Vaca cadastrada com sucesso."]);
-            } else {
-                http_response_code(500);
-                echo json_encode(["message" => "Erro ao cadastrar vaca."]);
-            }
-        } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode(["message" => "Erro: " . $e->getMessage()]);
-        }
+    if (!isset($data->numero_animal) || empty($data->numero_animal)) {
+        http_response_code(400);
+        echo json_encode(["message" => "O número é obrigatório."]);
+        return;
     }
+
+    try {
+        $resultado = $this->vaca->create(
+            $data->numero_animal,
+            $data->nome_animal ?? null,
+            $data->raca ?? null,
+            $data->sexo ?? null,
+            $data->data_nascimento ?? null,
+            $data->peso_kg ?? null,
+            $data->cor ?? null,
+            $data->statuss ?? null,
+            $data->estado_saude ?? null,
+            $data->ultima_vacinacao ?? null,
+            $data->proxima_vacinacao ?? null,
+            $data->status_reprodutivo ?? null,
+            $data->producao_diaria_litros ?? null,
+            null, // ou $data->foto ?? null (depois)
+            $data->observavoes ?? null,
+            $data->criado_em ?? date("Y-m-d H:i:s")
+        );
+
+        if ($resultado) {
+            http_response_code(200);
+            echo json_encode(["message" => "Vaca cadastrada com sucesso."]);
+        } else {
+            http_response_code(500);
+            echo json_encode(["message" => "Erro ao cadastrar vaca."]);
+        }
+
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(["message" => "Erro: " . $e->getMessage()]);
+    }
+}
+
 
     // Método para atualizar uma vaca
     public function update($id)
