@@ -21,7 +21,7 @@ class usuarioController
 
         if(!isset($data->nome) || !isset($data->email) || !isset($data->senha) || !isset($data->cargo)){
             http_response_code(400);
-            echo json_encode(["message" => "Nome, email senha e cargo são obrigatorios"]);
+            echo json_encode(["message" => "Nome, email, senha e cargo são obrigatórios"]);
             return;
         }
 
@@ -30,19 +30,24 @@ class usuarioController
                 $data->nome, 
                 $data->email,
                 $data->senha,
-                $data->cargo
+                $data->cargo,
+                $data->telefone ?? null,
+                $data->endereco ?? null,
+                $data->cidade ?? null,
+                $data->estado ?? null,
+                $data->cep ?? null
             );
             
             if($resultado){
                 http_response_code(200);
-                echo json_encode(["message" => "Usuario criado com sucesso"]);
-            }else {
+                echo json_encode(["message" => "Usuário criado com sucesso"]);
+            } else {
                 http_response_code(500);
-                echo json_encode(["message" => "Erro ao criar o ususario"]);
+                echo json_encode(["message" => "Erro ao criar o usuário"]);
             }
-        }catch (Exception $e){
+        } catch (Exception $e){
             http_response_code(500);
-            echo json_encode(["message" => "Eror: " . $e->getMessage()]);
+            echo json_encode(["message" => "Erro: " . $e->getMessage()]);
         }
     }
 
