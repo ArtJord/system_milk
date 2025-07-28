@@ -51,6 +51,7 @@ class usuario
         return false;
     }
 
+   // Verifica se o usuário tem o cargo necessário
     public function verificarCargo($id, $cargo_necessario)
     {
         $stmt = $this->pdo->prepare("SELECT cargo FROM usuarios WHERE id = ?");
@@ -61,16 +62,21 @@ class usuario
         return $usuario && $usuario['cargo'] === $cargo_necessario;
     }
 
-    public function findById($id){
+      // Buscar dados de perfil
+    public function findById($id)
+    {
         $stmt = $this->pdo->prepare("
-        SELECT id, nome, email, cargo, telefone, endereco, cidade, estado, cep FROM usuarios WHERE id = ?
-        
+            SELECT id, nome, email, cargo, telefone, endereco, cidade, estado, cep
+            FROM usuarios
+            WHERE id = ?
         ");
         $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function atualizarPerfil(){
-
+    // Atualizar perfil (implementação futura)
+    public function atualizarPerfil()
+    {
+        // implementar depois
     }
 }
