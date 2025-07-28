@@ -51,7 +51,7 @@ class usuarioController
         }
     }
 
-    public function login()
+     public function login()
     {
         $data = json_decode(file_get_contents("php://input"));
 
@@ -65,7 +65,6 @@ class usuarioController
             $usuario = $this->usuario->login($data->email, $data->senha);
 
             if ($usuario) {
-                // Criar um token JWT ou retornar o ID para autenticação posterior
                 http_response_code(200);
                 echo json_encode([
                     "message" => "Login realizado com sucesso.",
@@ -80,6 +79,7 @@ class usuarioController
             echo json_encode(["message" => "Erro: " . $e->getMessage()]);
         }
     }
+
 
     // Verificar se o usuário tem permissão para editar ou excluir
     public function verificarPermissao($id_usuario, $cargo_necessario)
