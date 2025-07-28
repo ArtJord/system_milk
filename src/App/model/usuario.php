@@ -46,4 +46,17 @@ class usuario
 
         return $usuario && $usuario['cargo'] === $cargo_necessario;
     }
+
+    public function findById($id){
+        $stmt = $this->pdo->prepare("
+        SELECT id, nome, email, cargo, telefone, endereco, cidade, estado, cep FROM usuarios WHERE id = ?
+        
+        ");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function atualizarPerfil(){
+
+    }
 }
