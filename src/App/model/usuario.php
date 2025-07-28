@@ -75,8 +75,22 @@ class usuario
     }
 
     // Atualizar perfil (implementação futura)
-    public function atualizarPerfil()
-    {
-        // implementar depois
-    }
+    public function atualizarPerfil($id, $telefone = null, $endereco = null, $cidade = null, $estado = null, $cep = null)
+{
+    $stmt = $this->pdo->prepare("
+        UPDATE usuarios
+        SET telefone = ?, endereco = ?, cidade = ?, estado = ?, cep = ?
+        WHERE id = ?
+    ");
+
+    return $stmt->execute([
+        $telefone,
+        $endereco,
+        $cidade,
+        $estado,
+        $cep,
+        $id
+    ]);
+}
+
 }
