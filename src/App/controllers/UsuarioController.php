@@ -80,6 +80,33 @@ class usuarioController
         }
     }
 
+     public function atualizarPerfil($id)
+    {
+        $data = json_decode(file_get_contents("php://input"));
+
+        try {
+            $resultado = $this->usuario->atualizarPerfil(
+                $id,
+                $data->telefone ?? null,
+                $data->endereco ?? null,
+                $data->cidade ?? null,
+                $data->estado ?? null,
+                $data->cep ?? null
+            );
+
+            if ($resultado) {
+                http_response_code(200);
+                echo json_encode(["message" => "Perfil atualizado com sucesso."]);
+            } else {
+                http_response_code(500);
+                echo json_encode(["message" => "Erro ao atualizar perfil."]);
+            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "Erro: " . $e->getMessage()]);
+        }
+    }
+
 
     // Verificar se o usuário tem permissão para editar ou excluir
     public function verificarPermissao($id_usuario, $cargo_necessario)
