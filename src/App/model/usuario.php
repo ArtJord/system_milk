@@ -51,7 +51,6 @@ class usuario
         return false;
     }
 
-
     public function verificarCargo($id, $cargo_necessario)
     {
         $stmt = $this->pdo->prepare("SELECT cargo FROM usuarios WHERE id = ?");
