@@ -122,7 +122,7 @@ class Despesa
         ]);
     }
 
-    public function getAllDespesas()
+     public function getAllDespesas()
     {
         $stmt = $this->pdo->prepare("SELECT * FROM despesa");
         $stmt->execute();
@@ -135,10 +135,17 @@ class Despesa
         return $despesas;
     }
 
+    public function getById($id)
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM despesa WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function delete($id)
     {
         $stmt = $this->pdo->prepare("DELETE FROM despesa WHERE id = ?");
         return $stmt->execute([$id]);
     }
 }
-?>
+
