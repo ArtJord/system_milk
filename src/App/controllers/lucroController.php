@@ -17,57 +17,40 @@ class LucroController
         $this->user_cargo = $user_cargo;
     }
 
-     public function create(
-        $data_receita = null,
-        $categoria = null,
-        $fonte_receita = null,
-        $cliente = null,
-        $descricao = null,
-        $quantidade = null,
-        $preco_unitario = null,
-        $valor_total = null,
-        $numero_nfe = null,
-        $metodo_pagamento = null,
-        $status_pagamento = null,
-        $data_vencimento = null,
-        $data_pagamento = null,
-        $observacoes = null
-    ) {
-        $sql = "INSERT INTO lucro (
-            data_receita,
-            categoria,
-            fonte_receita,
-            cliente,
-            descricao,
-            quantidade,
-            preco_unitario,
-            valor_total,
-            numero_nfe,
-            metodo_pagamento,
-            status_pagamento,
-            data_vencimento,
-            data_pagamento,
-            observacoes
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    public function create()
+    {
+        $data = json_decode(file_get_contents("php://input"));
 
-        $stmt = $this->pdo->prepare($sql);
+        if (!isset($data->origem) || !isset($data->quantidade) || !isset($data->valor) || !isset($data->data)) {
+            http_response_code(400);
+            echo json_encode(["message" => "Origem, quantidade, valor e data são obrigatórios."]);
+            return;
+        }
 
-        return $stmt->execute([
-            $data_receita,
-            $categoria,
-            $fonte_receita,
-            $cliente,
-            $descricao,
-            $quantidade,
-            $preco_unitario,
-            $valor_total,
-            $numero_nfe,
-            $metodo_pagamento,
-            $status_pagamento,
-            $data_vencimento,
-            $data_pagamento,
-            $observacoes
-        ]);
+        $tipo = isset($data->tipo) ? $data->tipo : null;
+        $nota_fiscal = isset($data->nota_fiscal) ? $data->nota_fiscal : null;
+
+        try {
+            $resultado = $this->lucro->create(
+                $data->origem,
+                $data->quantidade,
+                $data->valor,
+                $data->data,
+                $tipo,
+                $nota_fiscal
+            );
+
+            if ($resultado) {
+                http_response_code(200);
+                echo json_encode(["message" => "Lucro registrado com sucesso."]);
+            } else {
+                http_response_code(500);
+                echo json_encode(["message" => "Erro ao registrar o lucro."]);
+            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "Erro: " . $e->getMessage()]);
+        }
     }
 
     public function update()
