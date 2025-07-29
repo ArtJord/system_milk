@@ -67,15 +67,57 @@ class Despesa
         ]);
     }
 
-    public function update($id, $nomeDespesa, $valor, $data, $nota_fiscal = null)
-    {
-        $stmt = $this->pdo->prepare("UPDATE despesa SET nome_despesa = ?, valor = ?, data = ?, nota_fiscal = ? WHERE id = ?");
+    public function update(
+        $id,
+        $numero_despesa = null,
+        $data_despesa = null,
+        $prioridade = null,
+        $categoria = null,
+        $subcategoria = null,
+        $descricao = null,
+        $fornecedor = null,
+        $quantidade = null,
+        $preco_unitario = null,
+        $valor_total = null,
+        $numero_nfe = null,
+        $data_vencimento = null,
+        $data_pagamento = null,
+        $observacoes = null
+    ) {
+        $sql = "UPDATE despesa SET 
+            numero_despesa = ?, 
+            data_despesa = ?, 
+            prioridade = ?, 
+            categoria = ?, 
+            subcategoria = ?, 
+            descricao = ?, 
+            fornecedor = ?, 
+            quantidade = ?, 
+            preco_unitario = ?, 
+            valor_total = ?, 
+            numero_nfe = ?, 
+            data_vencimento = ?, 
+            data_pagamento = ?, 
+            observacoes = ?
+        WHERE id = ?";
+
+        $stmt = $this->pdo->prepare($sql);
 
         return $stmt->execute([
-            $nomeDespesa,
-            $valor,
-            $data,
-            $nota_fiscal,
+            $numero_despesa,
+            $data_despesa,
+            $prioridade,
+            $categoria,
+            $subcategoria,
+            $descricao,
+            $fornecedor,
+            $quantidade,
+            $preco_unitario,
+            $valor_total,
+            $numero_nfe,
+            $data_vencimento,
+            $data_pagamento,
+            $observacoes,
             $id
         ]);
     }
