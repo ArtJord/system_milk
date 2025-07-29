@@ -105,65 +105,42 @@ class Leite
         ]);
     }
 
-    public function getAllLeites()
+     public function getAllLeites()
     {
         $stmt = $this->pdo->prepare("SELECT * FROM leite");
         $stmt->execute();
 
-        $leites = [];
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $leites[] = $row;
-        }
-
-        return $leites;
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    
     public function delete($id)
     {
         $stmt = $this->pdo->prepare("DELETE FROM leite WHERE id = ?");
         return $stmt->execute([$id]);
     }
 
-    
     public function somarLeite($data_inicio = null, $data_fim = null)
-{
-    // Inicia a consulta SQL
-    $sql = "SELECT quantidade_litros, unidade_quantidade FROM leite";
+    {
+        $sql = "SELECT quantidade_litros FROM leite";
 
-    // Se foi passado um intervalo de datas, adicionamos isso à consulta
-    if ($data_inicio && $data_fim) {
-        $sql .= " WHERE data_fabricacao BETWEEN ? AND ?";
-    }
-
-    // Prepara a declaração
-    $stmt = $this->pdo->prepare($sql);
-
-    // Se houver intervalo de datas, passamos as datas para a execução da query
-    if ($data_inicio && $data_fim) {
-        $stmt->execute([$data_inicio, $data_fim]);
-    } else {
-        // Caso não haja intervalo de datas, executamos a query sem filtros
-        $stmt->execute();
-    }
-
-    // Variável para somar os litros
-    $totalLitros = 0;
-
-    // Processa as linhas retornadas
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        // Se a unidade for 'ml', converte para litros
-        if ($row['unidade_quantidade'] == 'ml') {
-            $quantidadeEmLitros = $row['quantidade_litros'] / 1000;
-        } else {
-            $quantidadeEmLitros = $row['quantidade_litros'];
+        if ($data_inicio && $data_fim) {
+            $sql .= " WHERE data_producao BETWEEN ? AND ?";
         }
 
-        // Soma a quantidade convertida ao total
-        $totalLitros += $quantidadeEmLitros;
-    }
+        $stmt = $this->pdo->prepare($sql);
 
-    return $totalLitros;
+        if ($data_inicio && $data_fim) {
+            $stmt->execute([$data_inicio, $data_fim]);
+        } else {
+            $stmt->execute();
+        }
+
+        $totalLitros = 0;
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $totalLitros += $row['quantidade_litros'];
+        }
+
+        return $totalLitros;
+    }
 }
-}
-?>
+
