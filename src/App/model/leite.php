@@ -59,15 +59,50 @@ class Leite
         ]);
     }
 
-    public function update($id, $data_fabricacao, $quantidade, $unidade_quantidade = 'litros')
-    {
-        
-        $stmt = $this->pdo->prepare("UPDATE leite 
-                                     SET data_fabricacao = ?, quantidade_litros = ?, unidade_quantidade = ? 
-                                     WHERE id = ?");
-        
-      
-        return $stmt->execute([$data_fabricacao, $quantidade, $unidade_quantidade, $id]);
+     public function update(
+        $id,
+        $data_producao,
+        $quantidade_litros,
+        $responsavel,
+        $turno = null,
+        $tipo_leite = null,
+        $qualidade = null,
+        $temperatura = null,
+        $equipamento_utilizado = null,
+        $animais_contribuintes = null,
+        $local_armazenamento = null,
+        $observacao = null
+    ) {
+        $sql = "UPDATE leite SET 
+            data_producao = ?,
+            quantidade_litros = ?,
+            responsavel = ?,
+            turno = ?,
+            tipo_leite = ?,
+            qualidade = ?,
+            temperatura = ?,
+            equipamento_utilizado = ?,
+            animais_contribuintes = ?,
+            local_armazenamento = ?,
+            observacao = ?
+        WHERE id = ?";
+
+        $stmt = $this->pdo->prepare($sql);
+
+        return $stmt->execute([
+            $data_producao,
+            $quantidade_litros,
+            $responsavel,
+            $turno,
+            $tipo_leite,
+            $qualidade,
+            $temperatura,
+            $equipamento_utilizado,
+            $animais_contribuintes,
+            $local_armazenamento,
+            $observacao,
+            $id
+        ]);
     }
 
     public function getAllLeites()
