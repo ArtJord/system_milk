@@ -24,7 +24,7 @@ class Lucro
         $quantidade = null,
         $preco_unitario = null,
         $valor_total = null,
-        $numero_nfe = null,
+        $nota_fiscal = null,
         $metodo_pagamento = null,
         $status_pagamento = null,
         $data_vencimento = null,
@@ -40,7 +40,7 @@ class Lucro
             quantidade,
             preco_unitario,
             valor_total,
-            numero_nfe,
+            nota_fiscal,
             metodo_pagamento,
             status_pagamento,
             data_vencimento,
@@ -59,7 +59,7 @@ class Lucro
             $quantidade,
             $preco_unitario,
             $valor_total,
-            $numero_nfe,
+            $nota_fiscal,
             $metodo_pagamento,
             $status_pagamento,
             $data_vencimento,
@@ -69,20 +69,68 @@ class Lucro
     }
 
    
-    public function update($id, $origem, $quantidade, $valor, $data, $tipo = null, $nota_fiscal = null)
-    {
-        $stmt = $this->pdo->prepare("UPDATE lucro SET origem = ?, quantidade = ?, valor = ?, data = ?, tipo = ?, nota_fiscal = ? WHERE id = ?");
+    public function update(
+    $id,
+    $data_receita = null,
+    $categoria = null,
+    $fonte_receita = null,
+    $cliente = null,
+    $descricao = null,
+    $quantidade = null,
+    $preco_unitario = null,
+    $valor_total = null,
+    $nota_fiscal = null,
+    $metodo_pagamento = null,
+    $status_pagamento = null,
+    $data_vencimento = null,
+    $data_pagamento = null,
+    $observacoes = null
+) {
+    $sql = "UPDATE lucro SET
+        data_receita = ?,
+        categoria = ?,
+        fonte_receita = ?,
+        cliente = ?,
+        descricao = ?,
+        quantidade = ?,
+        preco_unitario = ?,
+        valor_total = ?,
+        nota_fiscal = ?,
+        metodo_pagamento = ?,
+        status_pagamento = ?,
+        data_vencimento = ?,
+        data_pagamento = ?,
+        observacoes = ?
+    WHERE id = ?";
 
-        return $stmt->execute([
-            $origem,
-            $quantidade,
-            $valor,
-            $data,
-            $tipo,
-            $nota_fiscal,
-            $id
-        ]);
-    }
+    $stmt = $this->pdo->prepare($sql);
+
+    return $stmt->execute([
+        $data_receita,
+        $categoria,
+        $fonte_receita,
+        $cliente,
+        $descricao,
+        $quantidade,
+        $preco_unitario,
+        $valor_total,
+        $nota_fiscal,
+        $metodo_pagamento,
+        $status_pagamento,
+        $data_vencimento,
+        $data_pagamento,
+        $observacoes,
+        $id
+    ]);
+}
+
+    public function getById($id)
+{
+    $stmt = $this->pdo->prepare("SELECT * FROM lucro WHERE id = ?");
+    $stmt->execute([$id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
 
     public function getAllLucros()
     {

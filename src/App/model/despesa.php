@@ -14,33 +14,115 @@ class Despesa
         $this->pdo = $db;
     }
 
-    public function create($nomeDespesa, $valor, $data, $nota_fiscal = null)
-    {
-        $stmt = $this->pdo->prepare("INSERT INTO despesa (nome_despesa, valor, data, nota_fiscal) 
-                                     VALUES (?, ?, ?, ?)");
+     public function create(
+        $numero_despesa = null,
+        $data_despesa = null,
+        $prioridade = null,
+        $categoria = null,
+        $subcategoria = null,
+        $descricao = null,
+        $fornecedor = null,
+        $quantidade = null,
+        $preco_unitario = null,
+        $valor_total = null,
+        $numero_nfe = null,
+        $data_vencimento = null,
+        $data_pagamento = null,
+        $observacoes = null
+    ) {
+        $sql = "INSERT INTO despesa (
+            numero_despesa,
+            data_despesa,
+            prioridade,
+            categoria,
+            subcategoria,
+            descricao,
+            fornecedor,
+            quantidade,
+            preco_unitario,
+            valor_total,
+            numero_nfe,
+            data_vencimento,
+            data_pagamento,
+            observacoes
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        $stmt = $this->pdo->prepare($sql);
 
         return $stmt->execute([
-            $nomeDespesa,
-            $valor,
-            $data,
-            $nota_fiscal
+            $numero_despesa,
+            $data_despesa,
+            $prioridade,
+            $categoria,
+            $subcategoria,
+            $descricao,
+            $fornecedor,
+            $quantidade,
+            $preco_unitario,
+            $valor_total,
+            $numero_nfe,
+            $data_vencimento,
+            $data_pagamento,
+            $observacoes
         ]);
     }
 
-    public function update($id, $nomeDespesa, $valor, $data, $nota_fiscal = null)
-    {
-        $stmt = $this->pdo->prepare("UPDATE despesa SET nome_despesa = ?, valor = ?, data = ?, nota_fiscal = ? WHERE id = ?");
+    public function update(
+        $id,
+        $numero_despesa = null,
+        $data_despesa = null,
+        $prioridade = null,
+        $categoria = null,
+        $subcategoria = null,
+        $descricao = null,
+        $fornecedor = null,
+        $quantidade = null,
+        $preco_unitario = null,
+        $valor_total = null,
+        $numero_nfe = null,
+        $data_vencimento = null,
+        $data_pagamento = null,
+        $observacoes = null
+    ) {
+        $sql = "UPDATE despesa SET 
+            numero_despesa = ?, 
+            data_despesa = ?, 
+            prioridade = ?, 
+            categoria = ?, 
+            subcategoria = ?, 
+            descricao = ?, 
+            fornecedor = ?, 
+            quantidade = ?, 
+            preco_unitario = ?, 
+            valor_total = ?, 
+            numero_nfe = ?, 
+            data_vencimento = ?, 
+            data_pagamento = ?, 
+            observacoes = ?
+        WHERE id = ?";
+
+        $stmt = $this->pdo->prepare($sql);
 
         return $stmt->execute([
-            $nomeDespesa,
-            $valor,
-            $data,
-            $nota_fiscal,
+            $numero_despesa,
+            $data_despesa,
+            $prioridade,
+            $categoria,
+            $subcategoria,
+            $descricao,
+            $fornecedor,
+            $quantidade,
+            $preco_unitario,
+            $valor_total,
+            $numero_nfe,
+            $data_vencimento,
+            $data_pagamento,
+            $observacoes,
             $id
         ]);
     }
 
-    public function getAllDespesas()
+     public function getAllDespesas()
     {
         $stmt = $this->pdo->prepare("SELECT * FROM despesa");
         $stmt->execute();
@@ -53,10 +135,17 @@ class Despesa
         return $despesas;
     }
 
+    public function getById($id)
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM despesa WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function delete($id)
     {
         $stmt = $this->pdo->prepare("DELETE FROM despesa WHERE id = ?");
         return $stmt->execute([$id]);
     }
 }
-?>
+

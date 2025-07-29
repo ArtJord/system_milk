@@ -17,31 +17,30 @@ class LucroController
         $this->user_cargo = $user_cargo;
     }
 
-    public function create()
+      public function create()
     {
         $data = json_decode(file_get_contents("php://input"));
 
-        if (!isset($data->origem) || !isset($data->quantidade) || !isset($data->valor) || !isset($data->data)) {
-            http_response_code(400);
-            echo json_encode(["message" => "Origem, quantidade, valor e data são obrigatórios."]);
-            return;
-        }
-
-        $tipo = isset($data->tipo) ? $data->tipo : null;
-        $nota_fiscal = isset($data->nota_fiscal) ? $data->nota_fiscal : null;
-
         try {
             $resultado = $this->lucro->create(
-                $data->origem,
-                $data->quantidade,
-                $data->valor,
-                $data->data,
-                $tipo,
-                $nota_fiscal
+                $data->data_receita ?? null,
+                $data->categoria ?? null,
+                $data->fonte_receita ?? null,
+                $data->cliente ?? null,
+                $data->descricao ?? null,
+                $data->quantidade ?? null,
+                $data->preco_unitario ?? null,
+                $data->valor_total ?? null,
+                $data->nota_fiscal ?? null,
+                $data->metodo_pagamento ?? null,
+                $data->status_pagamento ?? null,
+                $data->data_vencimento ?? null,
+                $data->data_pagamento ?? null,
+                $data->observacoes ?? null
             );
 
             if ($resultado) {
-                http_response_code(200);
+                http_response_code(201);
                 echo json_encode(["message" => "Lucro registrado com sucesso."]);
             } else {
                 http_response_code(500);
@@ -53,28 +52,33 @@ class LucroController
         }
     }
 
-    public function update()
+     public function update()
     {
         $data = json_decode(file_get_contents("php://input"));
 
-        if (!isset($data->id) || !isset($data->origem) || !isset($data->quantidade) || !isset($data->valor) || !isset($data->data)) {
+        if (!isset($data->id)) {
             http_response_code(400);
-            echo json_encode(["message" => "ID, origem, quantidade, valor e data são obrigatórios."]);
+            echo json_encode(["message" => "ID é obrigatório para atualizar o lucro."]);
             return;
         }
-
-        $tipo = isset($data->tipo) ? $data->tipo : null;
-        $nota_fiscal = isset($data->nota_fiscal) ? $data->nota_fiscal : null;
 
         try {
             $resultado = $this->lucro->update(
                 $data->id,
-                $data->origem,
-                $data->quantidade,
-                $data->valor,
-                $data->data,
-                $tipo,
-                $nota_fiscal
+                $data->data_receita ?? null,
+                $data->categoria ?? null,
+                $data->fonte_receita ?? null,
+                $data->cliente ?? null,
+                $data->descricao ?? null,
+                $data->quantidade ?? null,
+                $data->preco_unitario ?? null,
+                $data->valor_total ?? null,
+                $data->nota_fiscal ?? null,
+                $data->metodo_pagamento ?? null,
+                $data->status_pagamento ?? null,
+                $data->data_vencimento ?? null,
+                $data->data_pagamento ?? null,
+                $data->observacoes ?? null
             );
 
             if ($resultado) {
@@ -90,6 +94,24 @@ class LucroController
         }
     }
 
+    public function getById($id)
+{
+    try {
+        $lucro = $this->lucro->getById($id);
+
+        if ($lucro) {
+            http_response_code(200);
+            echo json_encode(["lucro" => $lucro]);
+        } else {
+            http_response_code(404);
+            echo json_encode(["message" => "Lucro não encontrado."]);
+        }
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(["message" => "Erro: " . $e->getMessage()]);
+    }
+}
+
     public function getAllLucros()
     {
         try {
@@ -102,11 +124,11 @@ class LucroController
         }
     }
 
-    public function delete()
+   public function delete()
     {
-        if ($this->user_cargo != 'gerente') {
+        if ($this->user_cargo !== 'gerente') {
             http_response_code(403);
-            echo json_encode(["message" => "Apenas o gerente pode excluir"]);
+            echo json_encode(["message" => "Apenas o gerente pode excluir."]);
             return;
         }
 
@@ -134,4 +156,4 @@ class LucroController
         }
     }
 }
-?>
+
