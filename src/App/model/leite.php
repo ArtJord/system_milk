@@ -15,19 +15,47 @@ class Leite
     }
 
     
-    public function create($data_fabricacao, $quantidade, $unidade_quantidade = 'litros', $tipo_leite = null, $criado_por = null)
-    {
-        
-        $stmt = $this->pdo->prepare("INSERT INTO leite (data_fabricacao, quantidade_litros, unidade_quantidade, tipo_leite, criado_por) 
-                                     VALUES (?, ?, ?, ?, ?)");
+    public function create(
+        $data_producao,
+        $quantidade_litros,
+        $responsavel,
+        $turno = null,
+        $tipo_leite = null,
+        $qualidade = null,
+        $temperatura = null,
+        $equipamento_utilizado = null,
+        $animais_contribuintes = null, // deve vir como string do tipo '{"1","2"}'
+        $local_armazenamento = null,
+        $observacao = null
+    ) {
+        $sql = "INSERT INTO leite (
+            data_producao,
+            quantidade_litros,
+            responsavel,
+            turno,
+            tipo_leite,
+            qualidade,
+            temperatura,
+            equipamento_utilizado,
+            animais_contribuintes,
+            local_armazenamento,
+            observacao
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        
+        $stmt = $this->pdo->prepare($sql);
+
         return $stmt->execute([
-            $data_fabricacao, 
-            $quantidade, 
-            $unidade_quantidade,
+            $data_producao,
+            $quantidade_litros,
+            $responsavel,
+            $turno,
             $tipo_leite,
-            $criado_por
+            $qualidade,
+            $temperatura,
+            $equipamento_utilizado,
+            $animais_contribuintes,
+            $local_armazenamento,
+            $observacao
         ]);
     }
 
