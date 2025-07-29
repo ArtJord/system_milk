@@ -7,20 +7,4 @@
 
 ---
 
-## 🚀 Funcionalidades principais
 
-### 🐮 Módulo Leite
-- Registro da produção por **data e turno** (manhã, tarde ou noite)
-- Quantidade em **litros com precisão**
-- Classificação por tipo e qualidade
-- Equipamentos utilizados
-- Vários animais podem ser associados a uma única coleta
-- Controle de armazenamento e observações
-
-### 💸 Módulo Lucros
-- Cadastro completo de receitas: **data, origem, cliente, categoria, valor unitário e total**
-- Cálculo automático do valor total (`quantidade × preço_unitario`)
-- Controle de pagamento: método, status, data de vencimento e pagamento
-- Observações adicionais e emissão de nota fiscal
-
----
