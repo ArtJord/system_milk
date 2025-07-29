@@ -32,6 +32,7 @@ $router->add("DELETE", "/vaca/{id}", [$vacaController, 'delete']);
 $router->add("POST", "/leite", [$leiteController, 'create']);
 $router->add("PUT", "/editleite", [$leiteController, 'update']);
 $router->add("GET", "/allleite", [$leiteController, 'getAllLeites']);
+$router->add("GET", "/leite/{id}", [$leiteController, 'getById']);
 $router->add("DELETE", "/deleteleite", [$leiteController, 'delete']);
 $router->add("POST", "/somaleite", [$leiteController, 'somarLeite']);
 

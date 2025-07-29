@@ -113,6 +113,15 @@ class Leite
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getById($id)
+{
+    $stmt = $this->pdo->prepare("SELECT * FROM leite WHERE id = ?");
+    $stmt->execute([$id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+
+
     public function delete($id)
     {
         $stmt = $this->pdo->prepare("DELETE FROM leite WHERE id = ?");
