@@ -1,50 +1,19 @@
-Número do Animal *
+feat: adiciona funcionalidade de login com Google
 
-Nome do Animal *
+fix: corrige bug no cálculo de impostos
 
-Raça *
-(chat coloca uns 7 tipo de raça e vacas e outros como opção tambem)
+docs: atualiza README com instruções de instalação
 
-Sexo *
-Macho e femea
+refactor: simplifica lógica de verificação de CPF
 
-Data de Nascimento 
+style: ajusta identação e remove espaços em branco
 
+test: adiciona testes para componente de autenticação
 
-Peso (kg)
-Ex: 450
+chore: atualiza dependências do projeto
 
-Cor
-ex:  branca (apenas uma string)
+build: configura script de build para produção
 
-Status e Saúde
-Status *
-Selecione o status
+ci: corrige pipeline de testes no GitHub Actions
 
-Status é obrigatório
-
-Estado de Saúde
-Selecione
-
-***Status e Saúde***
-Status *
-Selecione o status
-(Ativa, prenha seca, doente, vendida)
-
-Estado de Saúde
-(Excelente,boa regular ruim,  critica)
-
-Última VacinaçãoSelecionar - data
-Próxima VacinaçãoSelecionar - data
-
-Status Reprodutivo
-(Vazia, prenha, seca, lactante, no cio )
-
-***Produção e Observações***
-Produção Diária (litros)
-
-Foto do Animal
-(escolher arquivo)
-
-Descrição/Observações
-
+revert: reverte commit 2a3b4c5 por erro na lógica

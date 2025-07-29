@@ -10,9 +10,25 @@ class VacaTest extends TestCase
 
     protected function setUp(): void
     {
-<<<<<<< HEAD
+        // Criar mock do PDO
         $this->pdo = $this->createMock(PDO::class);
         $this->vaca = new Vaca($this->pdo);
+    }
+
+    public function testCreateSuccess()
+    {
+        $stmt = $this->createMock(PDOStatement::class);
+        $stmt->expects($this->once())
+             ->method('execute')
+             ->willReturn(true);
+
+        $this->pdo->expects($this->once())
+                  ->method('prepare')
+                  ->with($this->stringContains('INSERT INTO animais'))
+                  ->willReturn($stmt);
+
+        $result = $this->vaca->create(123);
+        $this->assertTrue($result);
     }
 
     public function testCreateFailure()
@@ -24,36 +40,32 @@ class VacaTest extends TestCase
 
         $this->pdo->expects($this->once())
                   ->method('prepare')
-                  ->with($this->stringContains('INSERT INTO animais'))
                   ->willReturn($stmt);
 
         $result = $this->vaca->create(123);
         $this->assertFalse($result);
-=======
-        // Criando um mock do PDOStatement
-        $statement = $this->createMock(PDOStatement::class);
-        $statement->expects($this->once())
-            ->method('execute')
-            ->with([
-                '123',                 // numero_animal
-                'Mimosa',              // nome_animal
-                'Holandesa',           // raca
-                'Saudável e bem ativa',// observacoes
-                1                      // id
-            ])
-            ->willReturn(true);
+    }
 
-        // Criando um mock do PDO
-        $this->pdo = $this->createMock(PDO::class);
-        $this->pdo->method('prepare')->willReturn($statement);
+    public function testUpdateSuccess()
+    {
+        $stmt = $this->createMock(PDOStatement::class);
+        $stmt->expects($this->once())
+             ->method('execute')
+             ->with(['123', 'Mimosa', 'Holandesa', 'Animal saudável', 1])
+             ->willReturn(true);
 
-        $this->vaca = new Vaca($this->pdo);
->>>>>>> c53e788 (fix: corrige o metodo de update no model e cotroller)
+        $this->pdo->expects($this->once())
+                  ->method('prepare')
+                  ->with($this->stringContains('UPDATE animais'))
+                  ->willReturn($stmt);
+
+        $vaca = new Vaca($this->pdo);
+        $result = $vaca->update(1, '123', 'Mimosa', 'Holandesa', 'Animal saudável');
+        $this->assertTrue($result);
     }
 
     public function testDeleteFailure()
     {
-<<<<<<< HEAD
         $stmt = $this->createMock(PDOStatement::class);
         $stmt->expects($this->once())
              ->method('execute')
@@ -90,15 +102,9 @@ class VacaTest extends TestCase
     public function testFindByIdNotFound()
     {
         $stmt = $this->createMock(PDOStatement::class);
-        $stmt->expects($this->once())
-             ->method('bindParam')
-             ->with(':id', $this->anything(), PDO::PARAM_INT);
-        $stmt->expects($this->once())
-             ->method('execute');
-        $stmt->expects($this->once())
-             ->method('fetch')
-             ->with(PDO::FETCH_ASSOC)
-             ->willReturn(false);
+        $stmt->expects($this->once())->method('bindParam')->with(':id', $this->anything(), PDO::PARAM_INT);
+        $stmt->expects($this->once())->method('execute');
+        $stmt->expects($this->once())->method('fetch')->with(PDO::FETCH_ASSOC)->willReturn(false);
 
         $this->pdo->expects($this->once())
                   ->method('prepare')
@@ -108,9 +114,4 @@ class VacaTest extends TestCase
         $result = $this->vaca->findById(999);
         $this->assertFalse($result);
     }
-=======
-        $result = $this->vaca->update(1, '123', 'Mimosa', 'Holandesa', 'Saudável e bem ativa');
-        $this->assertTrue($result);
-    }
->>>>>>> c53e788 (fix: corrige o metodo de update no model e cotroller)
 }

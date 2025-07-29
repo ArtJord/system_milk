@@ -109,7 +109,7 @@ class usuarioController
 
 
     // Verificar se o usuário tem permissão para editar ou excluir
-    public function verificarPermissao($id_usuario, $cargo_necessario)
+        public function verificarPermissao($id_usuario, $cargo_necessario)
     {
         try {
             if ($this->usuario->verificarCargo($id_usuario, $cargo_necessario)) {
