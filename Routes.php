@@ -11,7 +11,7 @@ class Routes
     
     public function add($method, $path, $callback)
     {
-        // Substituindo a variável {id} por um padrão de captura (\d+)
+        // Substituindo a variável {id} por um padrão de captura
         $path = preg_replace('/\{(\w+)\}/', '(\d+)', $path);
         $this->routes[] = [
             'method' => $method,

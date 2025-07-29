@@ -43,7 +43,7 @@ $router->add("POST", "/login", [$usuarioController, 'login']);
 // Registrando rotas de Despesas
 $router->add("POST", "/despesa", [$despesaController, 'create']);
 $router->add("GET", "/despesas", [$despesaController,  'getAllDespesas']);
-$router->add("GET", "/despesas/{id}", [$despesaController, 'findById']);
+$router->add("GET", "/despesas/{id}", [$despesaController, 'getById']);
 $router->add("PUT", "/despesa/{id}", [$despesaController, 'update']);
 $router->add("DELETE", "/despesa/{id}", [$despesaController, 'delete']);
 
