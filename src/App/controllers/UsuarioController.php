@@ -21,7 +21,7 @@ class usuarioController
 
         if(!isset($data->nome) || !isset($data->email) || !isset($data->senha) || !isset($data->cargo)){
             http_response_code(400);
-            echo json_encode(["message" => "Nome, email senha e cargo são obrigatorios"]);
+            echo json_encode(["message" => "Nome, email, senha e cargo são obrigatórios"]);
             return;
         }
 
@@ -30,23 +30,28 @@ class usuarioController
                 $data->nome, 
                 $data->email,
                 $data->senha,
-                $data->cargo
+                $data->cargo,
+                $data->telefone ?? null,
+                $data->endereco ?? null,
+                $data->cidade ?? null,
+                $data->estado ?? null,
+                $data->cep ?? null
             );
             
             if($resultado){
                 http_response_code(200);
-                echo json_encode(["message" => "Usuario criado com sucesso"]);
-            }else {
+                echo json_encode(["message" => "Usuário criado com sucesso"]);
+            } else {
                 http_response_code(500);
-                echo json_encode(["message" => "Erro ao criar o ususario"]);
+                echo json_encode(["message" => "Erro ao criar o usuário"]);
             }
-        }catch (Exception $e){
+        } catch (Exception $e){
             http_response_code(500);
-            echo json_encode(["message" => "Eror: " . $e->getMessage()]);
+            echo json_encode(["message" => "Erro: " . $e->getMessage()]);
         }
     }
 
-    public function login()
+     public function login()
     {
         $data = json_decode(file_get_contents("php://input"));
 
@@ -60,7 +65,6 @@ class usuarioController
             $usuario = $this->usuario->login($data->email, $data->senha);
 
             if ($usuario) {
-                // Criar um token JWT ou retornar o ID para autenticação posterior
                 http_response_code(200);
                 echo json_encode([
                     "message" => "Login realizado com sucesso.",
@@ -76,8 +80,36 @@ class usuarioController
         }
     }
 
+     public function atualizarPerfil($id)
+    {
+        $data = json_decode(file_get_contents("php://input"));
+
+        try {
+            $resultado = $this->usuario->atualizarPerfil(
+                $id,
+                $data->telefone ?? null,
+                $data->endereco ?? null,
+                $data->cidade ?? null,
+                $data->estado ?? null,
+                $data->cep ?? null
+            );
+
+            if ($resultado) {
+                http_response_code(200);
+                echo json_encode(["message" => "Perfil atualizado com sucesso."]);
+            } else {
+                http_response_code(500);
+                echo json_encode(["message" => "Erro ao atualizar perfil."]);
+            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "Erro: " . $e->getMessage()]);
+        }
+    }
+
+
     // Verificar se o usuário tem permissão para editar ou excluir
-    public function verificarPermissao($id_usuario, $cargo_necessario)
+        public function verificarPermissao($id_usuario, $cargo_necessario)
     {
         try {
             if ($this->usuario->verificarCargo($id_usuario, $cargo_necessario)) {

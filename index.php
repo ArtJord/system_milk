@@ -32,6 +32,7 @@ $router->add("DELETE", "/vaca/{id}", [$vacaController, 'delete']);
 $router->add("POST", "/leite", [$leiteController, 'create']);
 $router->add("PUT", "/editleite", [$leiteController, 'update']);
 $router->add("GET", "/allleite", [$leiteController, 'getAllLeites']);
+$router->add("GET", "/leite/{id}", [$leiteController, 'getById']);
 $router->add("DELETE", "/deleteleite", [$leiteController, 'delete']);
 $router->add("POST", "/somaleite", [$leiteController, 'somarLeite']);
 
@@ -42,16 +43,18 @@ $router->add("POST", "/login", [$usuarioController, 'login']);
 // Registrando rotas de Despesas
 $router->add("POST", "/despesa", [$despesaController, 'create']);
 $router->add("GET", "/despesas", [$despesaController,  'getAllDespesas']);
-$router->add("GET", "/despesas/{id}", [$despesaController, 'findById']);
+$router->add("GET", "/despesas/{id}", [$despesaController, 'getById']);
 $router->add("PUT", "/despesa/{id}", [$despesaController, 'update']);
 $router->add("DELETE", "/despesa/{id}", [$despesaController, 'delete']);
 
 // Registrando rotas de Lucros
 $router->add("POST", "/lucro", [$lucroController, 'create']); 
 $router->add("GET", "/lucros", [$lucroController, 'getAllLucros']); 
-$router->add("GET", "/lucro/{id}", [$lucroController, 'findById']); 
+$router->add("GET", "/lucro/{id}", [$lucroController, 'getById']); 
 $router->add("PUT", "/lucro/{id}", [$lucroController, 'update']); 
 $router->add("DELETE", "/lucro/{id}", [$lucroController, 'delete']);
+
+
 
 
 $requestedPath = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);

@@ -15,92 +15,141 @@ class Leite
     }
 
     
-    public function create($data_fabricacao, $quantidade, $unidade_quantidade = 'litros', $tipo_leite = null, $criado_por = null)
-    {
-        
-        $stmt = $this->pdo->prepare("INSERT INTO leite (data_fabricacao, quantidade_litros, unidade_quantidade, tipo_leite, criado_por) 
-                                     VALUES (?, ?, ?, ?, ?)");
+    public function create(
+        $data_producao,
+        $quantidade_litros,
+        $responsavel,
+        $turno = null,
+        $tipo_leite = null,
+        $qualidade = null,
+        $temperatura = null,
+        $equipamento_utilizado = null,
+        $animais_contribuintes = null, // deve vir como string do tipo '{"1","2"}'
+        $local_armazenamento = null,
+        $observacao = null
+    ) {
+        $sql = "INSERT INTO leite (
+            data_producao,
+            quantidade_litros,
+            responsavel,
+            turno,
+            tipo_leite,
+            qualidade,
+            temperatura,
+            equipamento_utilizado,
+            animais_contribuintes,
+            local_armazenamento,
+            observacao
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        
+        $stmt = $this->pdo->prepare($sql);
+
         return $stmt->execute([
-            $data_fabricacao, 
-            $quantidade, 
-            $unidade_quantidade,
+            $data_producao,
+            $quantidade_litros,
+            $responsavel,
+            $turno,
             $tipo_leite,
-            $criado_por
+            $qualidade,
+            $temperatura,
+            $equipamento_utilizado,
+            $animais_contribuintes,
+            $local_armazenamento,
+            $observacao
         ]);
     }
 
-    public function update($id, $data_fabricacao, $quantidade, $unidade_quantidade = 'litros')
-    {
-        
-        $stmt = $this->pdo->prepare("UPDATE leite 
-                                     SET data_fabricacao = ?, quantidade_litros = ?, unidade_quantidade = ? 
-                                     WHERE id = ?");
-        
-      
-        return $stmt->execute([$data_fabricacao, $quantidade, $unidade_quantidade, $id]);
+     public function update(
+        $id,
+        $data_producao,
+        $quantidade_litros,
+        $responsavel,
+        $turno = null,
+        $tipo_leite = null,
+        $qualidade = null,
+        $temperatura = null,
+        $equipamento_utilizado = null,
+        $animais_contribuintes = null,
+        $local_armazenamento = null,
+        $observacao = null
+    ) {
+        $sql = "UPDATE leite SET 
+            data_producao = ?,
+            quantidade_litros = ?,
+            responsavel = ?,
+            turno = ?,
+            tipo_leite = ?,
+            qualidade = ?,
+            temperatura = ?,
+            equipamento_utilizado = ?,
+            animais_contribuintes = ?,
+            local_armazenamento = ?,
+            observacao = ?
+        WHERE id = ?";
+
+        $stmt = $this->pdo->prepare($sql);
+
+        return $stmt->execute([
+            $data_producao,
+            $quantidade_litros,
+            $responsavel,
+            $turno,
+            $tipo_leite,
+            $qualidade,
+            $temperatura,
+            $equipamento_utilizado,
+            $animais_contribuintes,
+            $local_armazenamento,
+            $observacao,
+            $id
+        ]);
     }
 
-    public function getAllLeites()
+     public function getAllLeites()
     {
         $stmt = $this->pdo->prepare("SELECT * FROM leite");
         $stmt->execute();
 
-        $leites = [];
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $leites[] = $row;
-        }
-
-        return $leites;
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    
+    public function getById($id)
+{
+    $stmt = $this->pdo->prepare("SELECT * FROM leite WHERE id = ?");
+    $stmt->execute([$id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+
+
     public function delete($id)
     {
         $stmt = $this->pdo->prepare("DELETE FROM leite WHERE id = ?");
         return $stmt->execute([$id]);
     }
 
-    
     public function somarLeite($data_inicio = null, $data_fim = null)
-{
-    // Inicia a consulta SQL
-    $sql = "SELECT quantidade_litros, unidade_quantidade FROM leite";
+    {
+        $sql = "SELECT quantidade_litros FROM leite";
 
-    // Se foi passado um intervalo de datas, adicionamos isso à consulta
-    if ($data_inicio && $data_fim) {
-        $sql .= " WHERE data_fabricacao BETWEEN ? AND ?";
-    }
-
-    // Prepara a declaração
-    $stmt = $this->pdo->prepare($sql);
-
-    // Se houver intervalo de datas, passamos as datas para a execução da query
-    if ($data_inicio && $data_fim) {
-        $stmt->execute([$data_inicio, $data_fim]);
-    } else {
-        // Caso não haja intervalo de datas, executamos a query sem filtros
-        $stmt->execute();
-    }
-
-    // Variável para somar os litros
-    $totalLitros = 0;
-
-    // Processa as linhas retornadas
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        // Se a unidade for 'ml', converte para litros
-        if ($row['unidade_quantidade'] == 'ml') {
-            $quantidadeEmLitros = $row['quantidade_litros'] / 1000;
-        } else {
-            $quantidadeEmLitros = $row['quantidade_litros'];
+        if ($data_inicio && $data_fim) {
+            $sql .= " WHERE data_producao BETWEEN ? AND ?";
         }
 
-        // Soma a quantidade convertida ao total
-        $totalLitros += $quantidadeEmLitros;
-    }
+        $stmt = $this->pdo->prepare($sql);
 
-    return $totalLitros;
+        if ($data_inicio && $data_fim) {
+            $stmt->execute([$data_inicio, $data_fim]);
+        } else {
+            $stmt->execute();
+        }
+
+        $totalLitros = 0;
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $totalLitros += $row['quantidade_litros'];
+        }
+
+        return $totalLitros;
+    }
 }
-}
-?>
+
