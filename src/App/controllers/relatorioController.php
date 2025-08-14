@@ -1,42 +1,58 @@
 <?php
 
-/*
-
 namespace App\Controllers;
 
 use App\Services\RelatorioService;
-use App\Models\leite;
-use App\Models\lucro;
-use App\Models\despesa;
+use App\model\Leite;
+use App\model\Lucro;
+use App\model\Despesa;
+use Exception;
+use PDO;
 
-class RelatorioController {
+class RelatorioController
+{
+    private $pdo;
     private $relatorioService;
 
-    public function __construct() {
+    public function __construct(PDO $db)
+    {
+        $this->pdo = $db;
         $this->relatorioService = new RelatorioService();
     }
 
-    public function gerarRelatorioEstoque() {
-        // Buscando os dados de leite e lucro do banco
-        $leites = Leite::all();  // Supondo que você tenha um método para buscar todos os leites
-        $lucros = Lucro::all();  // Supondo que você tenha um método para buscar todos os lucros
+    public function getResumoEstoque()
+    {
+        try {
+            $leiteModel = new Leite($this->pdo);
+            $lucroModel = new Lucro($this->pdo);
 
-        // Gerando o relatório de estoque
-        $relatorioEstoque = $this->relatorioService->gerarResumoEstoque($leites, $lucros);
+            $leites = $leiteModel->getAllLeites();
+            $lucros = $lucroModel->getAllLucros();
 
-        // Exibindo ou retornando o relatório
-        return response()->json($relatorioEstoque);
+            $resumoEstoque = $this->relatorioService->gerarResumoEstoque($leites, $lucros);
+
+            echo json_encode($resumoEstoque);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "Erro ao gerar resumo do estoque: " . $e->getMessage()]);
+        }
     }
 
-    public function gerarRelatorioFinanceiro() {
-        // Buscando os dados de lucro e despesa do banco
-        $lucros = Lucro::all();  // Supondo que você tenha um método para buscar todos os lucros
-        $despesas = Despesa::all();  // Supondo que você tenha um método para buscar todas as despesas
+    public function getResumoFinanceiro()
+    {
+        try {
+            $lucroModel = new Lucro($this->pdo);
+            $despesaModel = new Despesa($this->pdo);
 
-        // Gerando o relatório financeiro
-        $relatorioFinanceiro = $this->relatorioService->gerarResumoFinanceiro($lucros, $despesas);
+            $lucros = $lucroModel->getAllLucros();
+            $despesas = $despesaModel->getAllDespesas();
 
-        // Exibindo ou retornando o relatório
-        return response()->json($relatorioFinanceiro);
+            $resumoFinanceiro = $this->relatorioService->gerarResumoFinanceiro($lucros, $despesas);
+
+            echo json_encode($resumoFinanceiro);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "Erro ao gerar resumo financeiro: " . $e->getMessage()]);
+        }
     }
 }

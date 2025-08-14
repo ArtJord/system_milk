@@ -17,3 +17,71 @@ build: configura script de build para produção
 ci: corrige pipeline de testes no GitHub Actions
 
 revert: reverte commit 2a3b4c5 por erro na lógica
+
+ 
+
+ JSON ANIMAIS 
+
+{
+  "numero_animal": "TEeeeeeste",
+  "nome_animal": "Bela",
+  "raca": "Holandesa",
+  "sexo": "F",
+  "data_nascimento": "2020-05-12",
+  "peso_kg": 520.5,
+  "cor": "Preta e Branca",
+  "statuss": "Ativa",
+  "estado_saude": "Excelente",
+  "ultima_vacinacao": "2025-02-15",
+  "proxima_vacinacao": "2025-08-15",
+  "status_reprodutivo": "Lactante",
+  "producao_diaria_litros": 28.4,
+  "foto": "https://meuservidor.com/fotos/bela.jpg",
+  "observacoes": "Animal saudável e de alta produção",
+  "criado_em": "2025-08-12 10:30:00"
+}
+
+
+
+JSON USUARIO 
+
+{
+  "nome": "João Silva",
+  "email": "joao.silvaaa@example.com",
+  "senha": "minhasenha123",
+  "cargo": "gerente",
+  "telefone": "(67) 99999-8888",
+  "endereco": "Rua das Flores, 123",
+  "cidade": "Dourados",
+  "estado": "MS",
+  "cep": "79800-000"
+}
+
+
+
+JSON LEITE 
+
+{
+  "data_producao": "2025-08-12",
+  "quantidade_litros": 250.5,
+  "responsavel": "Maria Souza",
+  "turno": "Manhã",
+  "tipo_leite": "Integral",
+  "qualidade": "A+",
+  "temperatura": 3.5,
+  "equipamento_utilizado": "Ordenha mecânica 1",
+  "animais_contribuintes": "{\"1\",\"2\",\"5\"}",
+  "local_armazenamento": "Tanque de resfriamento 1",
+  "observacao": "Produção normal, sem ocorrências"
+}
+
+
+JSON DELETE LEITE 
+
+Metodo DELETE
+
+http://localhost:8001/deleteleite
+
+{
+  "id": 1
+}

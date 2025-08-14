@@ -19,14 +19,32 @@ class LeiteController
     }
 
     
-   public function create()
-{
-    $data = json_decode(file_get_contents("php://input"));
+   public function create(){
+
+    header('Content-Type: application/json; charset=utf-8');
+
+    $ct = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
+    $raw = file_get_contents('php://input');
+
+    if (stripos($ct, 'application/json') !== false) {
+        $data = json_decode($raw);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            http_response_code(400);
+            echo json_encode([
+                "message" => "JSON inválido",
+                "error"   => json_last_error_msg()
+            ]);
+            exit;
+        }
+    } else {
+        // aceita também form-urlencoded/form-data
+        $data = (object) $_POST;
+    }
 
     if (!isset($data->quantidade_litros) || !isset($data->data_producao) || !isset($data->responsavel)) {
         http_response_code(400);
         echo json_encode(["message" => "A data de produção, a quantidade de litros e o responsável são obrigatórios."]);
-        return;
+        exit;
     }
 
     try {
@@ -34,26 +52,29 @@ class LeiteController
             $data->data_producao,
             $data->quantidade_litros,
             $data->responsavel,
-            isset($data->turno) ? $data->turno : null,
-            isset($data->tipo_leite) ? $data->tipo_leite : null,
-            isset($data->qualidade) ? $data->qualidade : null,
-            isset($data->temperatura) ? $data->temperatura : null,
-            isset($data->equipamento_utilizado) ? $data->equipamento_utilizado : null,
-            isset($data->animais_contribuintes) ? $data->animais_contribuintes : null,
-            isset($data->local_armazenamento) ? $data->local_armazenamento : null,
-            isset($data->observacao) ? $data->observacao : null
+            $data->turno              ?? null,
+            $data->tipo_leite         ?? null,
+            $data->qualidade          ?? null,
+            $data->temperatura        ?? null,
+            $data->equipamento_utilizado ?? null,
+            $data->animais_contribuintes ?? null,
+            $data->local_armazenamento   ?? null,
+            $data->observacao            ?? null
         );
 
         if ($resultado) {
-            http_response_code(200);
+            http_response_code(201);
             echo json_encode(["message" => "Leite registrado com sucesso."]);
+            exit;
         } else {
             http_response_code(500);
             echo json_encode(["message" => "Erro ao registrar o leite."]);
+            exit;
         }
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(["message" => "Erro: " . $e->getMessage()]);
+        exit;
     }
 }
 
