@@ -24,6 +24,8 @@ class usuario
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
 
+
+      
         return $stmt->execute([
             $nome,
             $email,
