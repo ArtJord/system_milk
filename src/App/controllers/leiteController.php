@@ -18,6 +18,9 @@ class LeiteController
         $this->user_cargo = $user_cargo;
     }
 
+    public function setUserCargo($cargo) { $this->user_cargo = $cargo; }
+
+
     
    public function create(){
 
@@ -37,7 +40,7 @@ class LeiteController
             exit;
         }
     } else {
-        // aceita também form-urlencoded/form-data
+        
         $data = (object) $_POST;
     }
 

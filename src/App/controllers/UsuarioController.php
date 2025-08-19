@@ -4,6 +4,10 @@ namespace App\Controllers;
 
 use App\model\usuario;
 use Exception;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+
+
 
 
 class usuarioController
@@ -52,33 +56,67 @@ class usuarioController
     }
 
      public function login()
-    {
-        $data = json_decode(file_get_contents("php://input"));
+{
+    $data = json_decode(file_get_contents("php://input"));
 
-        if (!isset($data->email) || !isset($data->senha)) {
-            http_response_code(400);
-            echo json_encode(["message" => "Email e senha são obrigatórios."]);
+    if (!isset($data->email) || !isset($data->senha)) {
+        http_response_code(400);
+        echo json_encode(["message" => "Email e senha são obrigatórios."]);
+        return;
+    }
+
+    try {
+        
+        $usuario = $this->usuario->login($data->email, $data->senha);
+
+        if (!$usuario) {
+            http_response_code(401);
+            echo json_encode(["message" => "Credenciais inválidas."]);
             return;
         }
 
-        try {
-            $usuario = $this->usuario->login($data->email, $data->senha);
+      
+        $cfg = require dirname(__DIR__, 3) . '/config/jwt.php';
 
-            if ($usuario) {
-                http_response_code(200);
-                echo json_encode([
-                    "message" => "Login realizado com sucesso.",
-                    "usuario" => $usuario
-                ]);
-            } else {
-                http_response_code(401);
-                echo json_encode(["message" => "Credenciais inválidas."]);
-            }
-        } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode(["message" => "Erro: " . $e->getMessage()]);
-        }
+
+        $now = time();
+        $payload = [
+            'iss'   => $cfg['issuer'],
+            'aud'   => $cfg['audience'],
+            'iat'   => $now,
+            'nbf'   => $now,
+            'exp'   => $now + $cfg['expires_in'],
+            'sub'   => (string)$usuario['id'],
+            'email' => $usuario['email'],
+            'cargo' => $usuario['cargo'] ?? 'atendente'
+        ];
+
+        $token = JWT::encode($payload, $cfg['secret'], 'HS256');
+
+        // Monte um "safe user" sem a senha
+        $safeUser = [
+            'id'     => $usuario['id'],
+            'nome'   => $usuario['nome'] ?? null,
+            'email'  => $usuario['email'],
+            'cargo'  => $usuario['cargo'] ?? null,
+            'telefone' => $usuario['telefone'] ?? null
+        ];
+
+        http_response_code(200);
+        echo json_encode([
+            "message"   => "Login realizado com sucesso.",
+            "token"     => $token,
+            "expira_em" => $payload['exp'],
+            "usuario"   => $safeUser
+        ]);
+        return;
+
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(["message" => "Erro: " . $e->getMessage()]);
+        return;
     }
+}
 
      public function atualizarPerfil($id)
     {

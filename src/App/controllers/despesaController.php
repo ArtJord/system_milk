@@ -17,6 +17,9 @@ class DespesaController
         $this->user_cargo = $user_cargo;
     }
 
+    public function setUserCargo($cargo) { $this->user_cargo = $cargo; }
+
+
     public function create()
     {
         $data = json_decode(file_get_contents("php://input"));
@@ -27,7 +30,7 @@ class DespesaController
             return;
         }
 
-        // Calculando valor_total
+        
         $valor_total = $data->quantidade * $data->preco_unitario;
 
         try {

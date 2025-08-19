@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\model\Lucro; // Se a pasta for "Model", troque para use App\Model\Lucro;
+use App\model\Lucro; 
 use PDO;
 use Exception;
 
@@ -17,7 +17,10 @@ class LucroController
         $this->user_cargo = $user_cargo;
     }
 
-    // POST /lucro
+    public function setUserCargo($cargo) { $this->user_cargo = $cargo; }
+
+
+    
     public function create(): void
     {
         $data = json_decode(file_get_contents("php://input"));
@@ -56,14 +59,14 @@ class LucroController
         }
     }
 
-    // PUT /lucro/{id}
+    
     public function update($id): void
     {
         $data = json_decode(file_get_contents("php://input")) ?: (object)[];
 
         try {
             $ok = $this->lucro->update(
-                $id, // <- usa o path param
+                $id, 
                 $data->data_receita    ?? null,
                 $data->categoria       ?? null,
                 $data->fonte_receita   ?? null,
@@ -96,7 +99,7 @@ class LucroController
         }
     }
 
-    // GET /lucro/{id}
+    
     public function getById($id): void
     {
         try {
@@ -118,11 +121,11 @@ class LucroController
         }
     }
 
-    // GET /lucros
+    
     public function getAll(): void
     {
         try {
-            // Se seu Model tiver getAllLucros(), use-o. Caso tenha getAll(), troque aqui.
+            
             $rows = $this->lucro->getAllLucros();
             http_response_code(200);
             echo json_encode(["lucros" => $rows]);
@@ -135,7 +138,7 @@ class LucroController
         }
     }
 
-    // DELETE /lucro/{id}
+    
     public function delete($id): void
     {
         if ($this->user_cargo !== 'gerente') {
@@ -145,7 +148,7 @@ class LucroController
         }
 
         try {
-            $ok = $this->lucro->delete($id); // <- usa o path param
+            $ok = $this->lucro->delete($id); 
 
             if ($ok) {
                 http_response_code(200);
