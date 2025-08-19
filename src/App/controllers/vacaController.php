@@ -15,7 +15,7 @@ class VacaController
         $this->vaca = new Vaca($db);
     }
 
-    // Método para criar uma nova vaca
+
  public function create()
 {
     header('Content-Type: application/json; charset=utf-8');
@@ -33,7 +33,7 @@ class VacaController
             $data->numero_animal,
             $data->nome_animal ?? null,
             $data->raca ?? null,
-            $data->sexo ?? null, // lembre-se: no banco é CHAR(1): 'M' ou 'F'
+            $data->sexo ?? null, 
             $data->data_nascimento ?? null,
             $data->peso_kg ?? null,
             $data->cor ?? null,
@@ -49,7 +49,7 @@ class VacaController
         );
 
         if ($resultado) {
-            http_response_code(201); // Created (opcional trocar para 200)
+            http_response_code(201); 
             echo json_encode(["message" => "Vaca cadastrada com sucesso."]);
             exit;
         } else {
@@ -66,7 +66,6 @@ class VacaController
 }
 
 
-    // Método para atualizar uma vaca
     public function update($id)
     {
         $data = json_decode(file_get_contents("php://input"));
@@ -99,7 +98,7 @@ class VacaController
         }
     }
 
-    // Método para deletar uma vaca
+
     public function delete($id)
     {
         try {
@@ -118,7 +117,7 @@ class VacaController
         }
     }
 
-    // Método para buscar todas as vacas
+    
     public function findAll()
     {
         $vacas = $this->vaca->findAll();
@@ -132,7 +131,7 @@ class VacaController
         }
     }
 
-    // Método para buscar uma vaca por ID
+   
     public function findById($id)
 {
     

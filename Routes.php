@@ -1,62 +1,46 @@
 <?php
-
-header("Access-Control-Allow-Origin: http://127.0.0.1:5500");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-
-if($_SERVER['REQUEST_METHOD'] === 'OPTIONS'){
-    http_response_code(204);
-    exit;
-}
+// Routes.php
 
 class Routes
 {
-    private $routes = [];
+    private array $routes = [];
 
     
-    public function add($method, $path, $callback)
+    public function add(string $method, string $path, callable|array $handler): void
     {
-
         $method = strtoupper($method);
 
-        $path = preg_replace('/\{(\w+)\}/', '(\d+)', $path);
-
-        if(substr($path, -1) === '/'){
-            $path = rtrim($path, '/');
-        }
-        $path .= '/?';
+        
+        $regex = preg_replace('/\{[a-zA-Z_][a-zA-Z0-9_]*\}/', '([0-9a-zA-Z\-_]+)', $path);
 
        
+        $pattern = '#^' . rtrim($regex, '/') . '/?$#D';
+
         $this->routes[] = [
-            'method' => $method,
-            'path' => "#^" . $path . "$#", 
-            'callback' => $callback
+            'method'  => $method,
+            'pattern' => $pattern,
+            'handler' => $handler,
         ];
     }
 
-    
-    public function dispatch($requestedPath)
+   
+    public function dispatch(string $method, string $uri): void
     {
-        $requestedMethod = $_SERVER["REQUEST_METHOD"];
+        $method = strtoupper($method);
 
-        $requestedPath = parse_url($requestedPath, PHP_URL_PATH);
-        
         foreach ($this->routes as $route) {
-            
-            if ($route['method'] === $requestedMethod && preg_match($route['path'], $requestedPath, $matches)) {
-                
-                array_shift($matches);
-
-                return call_user_func_array($route['callback'], $matches);
-                
-                
+            if ($route['method'] !== $method) {
+                continue; 
+            }
+            if (preg_match($route['pattern'], $uri, $matches)) {
+                array_shift($matches); 
+                call_user_func_array($route['handler'], $matches);
+                return;
             }
         }
 
-        header('Content-Type: application/json; charset=utf-8');
-        http_response_code((404));
-        echo json_encode(["message" => "404 - Página não encontrada"]);
-        exit;
-        
+        http_response_code(404);
+        echo json_encode(['message' => '404 - Página não encontrada']);
+        return;
     }
 }
