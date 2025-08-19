@@ -49,20 +49,23 @@ $router->add("GET", "/favicon.ico", function () {
 $router->add("GET", "/relatorio/estoque", [$relatorioController, 'getResumoEstoque']);
 $router->add("GET", "/relatorio/financeiro", [$relatorioController, 'getResumoFinanceiro']);
 
+
 // Vacas
-$router->add("POST", "/vaca",       [$vacaController, 'create']);
-$router->add("GET",  "/vacas",      [$vacaController, 'findAll']);
-$router->add("GET",  "/vaca/{id}",  [$vacaController, 'findById']);
-$router->add("PUT",  "/vaca/{id}",  [$vacaController, 'update']);
-$router->add("DELETE","}", [$vacaController, 'delete']);
+$router->add("POST",  "/vaca",       [$vacaController, 'create']);
+$router->add("GET",   "/vacas",      [$vacaController, 'findAll']);
+$router->add("GET",   "/vaca/{id}",  [$vacaController, 'findById']);
+$router->add("PUT",   "/vaca/{id}",  [$vacaController, 'update']);
+$router->add("DELETE","/vaca/{id}",  [$vacaController, 'delete']);
+
 
 // Leite
 $router->add("POST",   "/leite",       [$leiteController, 'create']);
-$router->add("PUT",    "/editleit/vaca/{ide",   [$leiteController, 'update']);
+$router->add("PUT",    "/leite/{id}",  [$leiteController, 'update']); 
 $router->add("GET",    "/allleite",    [$leiteController, 'getAllLeites']);
 $router->add("GET",    "/leite/{id}",  [$leiteController, 'getById']);
-$router->add("DELETE", "/deleteleite", [$leiteController, 'delete']);
+$router->add("DELETE", "/leite/{id}",  [$leiteController, 'delete']);   
 $router->add("POST",   "/somaleite",   [$leiteController, 'somarLeite']);
+
 
 // Usuário
 $router->add("POST", "/usuario", [$usuarioController, 'create']);
@@ -76,12 +79,45 @@ $router->add("PUT",    "/despesa/{id}",  [$despesaController, 'update']);
 $router->add("DELETE", "/despesa/{id}",  [$despesaController, 'delete']);
 
 // Lucros
-$router->add("POST",   "/lucro",       [$lucroController, 'create']); 
-$router->add("GET",    "/lucros",      [$lucroController, 'getAllLucros']); 
-$router->add("GET",    "/lucro/{id}",  [$lucroController, 'getById']); 
-$router->add("PUT",    "/lucro/{id}",  [$lucroController, 'update']); 
-$router->add("DELETE", "/lucro/{id}",  [$lucroController, 'delete']);
+// LUCRO — rotas REST corretas
+$router->add('GET',    '/lucros',        [$lucroController, 'getAll']);
+$router->add('GET',    '/lucro/{id}',    [$lucroController, 'getById']);
+$router->add('POST',   '/lucro',         [$lucroController, 'create']);
+$router->add('PUT',    '/lucro/{id}',    [$lucroController, 'update']);
+$router->add('DELETE', '/lucro/{id}',    [$lucroController, 'delete']);
 
-// Despacho — **sem cortar segmentos**
-$requestedPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$router->dispatch($requestedPath);
+
+// index.php
+
+// (1) Método HTTP
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+// (2) Path solicitado, sem query string
+$rawPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+
+// (3) Remove o diretório base (ex.: /system_milk) e o próprio index.php
+$scriptName = $_SERVER['SCRIPT_NAME'] ?? '';         // ex.: /system_milk/index.php
+$scriptDir  = rtrim(str_replace('\\', '/', dirname($scriptName)), '/'); // ex.: /system_milk
+
+$path = $rawPath;
+
+// Se URL contém /index.php no caminho, remove
+if (strpos($path, $scriptName) === 0) {
+    $path = substr($path, strlen($scriptName));
+}
+// Se URL contém apenas o diretório base (sem index.php), remove também
+elseif ($scriptDir && strpos($path, $scriptDir) === 0) {
+    $path = substr($path, strlen($scriptDir));
+}
+
+// Normaliza: garante que começa com /
+$path = '/' . ltrim($path, '/');
+
+// Remove barra final (exceto raiz)
+if ($path !== '/' && substr($path, -1) === '/') {
+    $path = rtrim($path, '/');
+}
+
+// (4) Despacha
+$router->dispatch($method, $path);
+
