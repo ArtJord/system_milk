@@ -135,6 +135,7 @@ $router->add("GET",    "/despesas/{id}", [$despesaController, 'getById']);
 $router->add("PUT",   "/despesa/{id}", $guard([$despesaController, 'update']));
 $router->add("DELETE","/despesa/{id}", $guard([$despesaController, 'delete'], ['gerente']));
 
+
 // Lucros
 
 $router->add('GET',    '/lucros',        [$lucroController, 'getAll']);
@@ -177,4 +178,3 @@ if ($path !== '/' && substr($path, -1) === '/') {
 
 // (4) Despacha
 $router->dispatch($method, $path);
-

@@ -137,36 +137,47 @@ class DespesaController
         }
     }
 
-    public function delete()
-    {
-        if ($this->user_cargo != 'gerente') {
-            http_response_code(403);
-            echo json_encode(["message" => "Apenas o gerente pode excluir."]);
-            return;
-        }
+    public function delete($id = null)
+{
+    // permissão
+    if ($this->user_cargo !== 'gerente') {
+        http_response_code(403);
+        echo json_encode(["message" => "Apenas o gerente pode excluir."]);
+        return;
+    }
 
+    // se não veio pela URL, tenta pegar do body
+    if ($id === null) {
         $data = json_decode(file_get_contents("php://input"));
-
-        if (!isset($data->id)) {
-            http_response_code(400);
-            echo json_encode(["message" => "ID é obrigatório para excluir a despesa."]);
-            return;
-        }
-
-        try {
-            $resultado = $this->despesa->delete($data->id);
-
-            if ($resultado) {
-                http_response_code(200);
-                echo json_encode(["message" => "Despesa excluída com sucesso."]);
-            } else {
-                http_response_code(500);
-                echo json_encode(["message" => "Erro ao excluir a despesa."]);
-            }
-        } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode(["message" => "Erro: " . $e->getMessage()]);
+        if (isset($data->id)) {
+            $id = (int)$data->id;
         }
     }
+
+    if (!$id) {
+        http_response_code(400);
+        echo json_encode(["message" => "ID é obrigatório para excluir a despesa."]);
+        return;
+    }
+
+    try {
+        $ok = $this->despesa->delete($id);
+        if ($ok) {
+            http_response_code(200);
+            echo json_encode(["message" => "Despesa excluída com sucesso."]);
+            return;
+        }
+        http_response_code(500);
+        echo json_encode(["message" => "Erro ao excluir a despesa."]);
+        return;
+
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(["message" => "Erro: " . $e->getMessage()]);
+        return;
+    }
 }
+
+}
+
 
