@@ -118,6 +118,15 @@ gerente
   "cep": "79800-001"
 }
 
+
+
+LOGIN 
+{
+  "email": "joao.souza@teste.com",
+  "senha": "123456",
+}
+
+
 ANIMAL
 
 {
@@ -136,6 +145,9 @@ ANIMAL
   "producao_diaria_litros": 21.8,
   "observacoes": "Sem intercorrências recentes"
 }
+
+
+
 
 
 

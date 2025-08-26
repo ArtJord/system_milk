@@ -75,10 +75,10 @@ class usuarioController
             return;
         }
 
-      
+      //Carrega as configs do JWT:
         $cfg = require dirname(__DIR__, 3) . '/config/jwt.php';
 
-
+        //Monta o payload e assina o toke
         $now = time();
         $payload = [
             'iss'   => $cfg['issuer'],
@@ -93,7 +93,7 @@ class usuarioController
 
         $token = JWT::encode($payload, $cfg['secret'], 'HS256');
 
-        // Monte um "safe user" sem a senha
+        
         $safeUser = [
             'id'     => $usuario['id'],
             'nome'   => $usuario['nome'] ?? null,
@@ -102,6 +102,7 @@ class usuarioController
             'telefone' => $usuario['telefone'] ?? null
         ];
 
+        //Retorna o token e dados seguros do usuario
         http_response_code(200);
         echo json_encode([
             "message"   => "Login realizado com sucesso.",
