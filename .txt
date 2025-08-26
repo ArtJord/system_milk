@@ -118,7 +118,7 @@ gerente
   "cep": "79800-001"
 }
 
-eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzeXN0ZW1fbWlsayIsImF1ZCI6InN5c3RlbV9taWxrIiwiaWF0IjoxNzU2MDc2MjM0LCJuYmYiOjE3NTYwNzYyMzQsImV4cCI6MTc1NjA5MDYzNCwic3ViIjoiMjQiLCJlbWFpbCI6ImFkbWluQGFkbWluLmNvbSIsImNhcmdvIjoiZ2VyZW50ZSJ9.J5vqd4eOmTkf0K9pNgq59PwJG479Mn8i_dpXddUoUaU
+
 
 LOGIN 
 {
@@ -126,13 +126,6 @@ LOGIN
   "senha": "123456",
 }
 
-TOKEN
-{
-  eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzeXN0ZW1fbWlsayIsImF1ZCI6InN5c3RlbV9taWxrIiwiaWF0IjoxNzU2MDc1MjAzLCJuYmYiOjE3NTYwNzUyMDMsImV4cCI6MTc1NjA4OTYwMywic3ViIjoiMjIiLCJlbWFpbCI6InVzdWFyaW9AdXN1YXJ1aS5jb20iLCJjYXJnbyI6ImdlcmVudGUifQ.XSZtSeIlyQHUxdWQwV2dXKRvY7R6WAiK5p4D3EizVtI
-}
-
-
-eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzeXN0ZW1fbWlsayIsImF1ZCI6InN5c3RlbV9taWxrIiwiaWF0IjoxNzU2MDc1MzgyLCJuYmYiOjE3NTYwNzUzODIsImV4cCI6MTc1NjA4OTc4Miwic3ViIjoiMjMiLCJlbWFpbCI6InVzZXJAdGVzdGUuY29tIiwiY2FyZ28iOiJmdW5jaW9uYXJpbyJ9.08dFU9TRh6v38PFytQEJ_BLFhNby0sCM0eN5X_sXDu4"
 
 ANIMAL
 
@@ -152,6 +145,9 @@ ANIMAL
   "producao_diaria_litros": 21.8,
   "observacoes": "Sem intercorrências recentes"
 }
+
+
+
 
 
 

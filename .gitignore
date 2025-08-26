@@ -1,8 +1,25 @@
-/composer.phar
-/composer.lock
-/vendor/*
+# Dependências / builds
+/vendor/
+/node_modules/
+
+# Ambiente
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Arquivos de teste / anotações locais
+*.txt
+
+# IDE / SO
+/.idea/
+/.vscode/
+/.DS_Store
+
+# PHPUnit
 .phpunit.result.cache
-node_modules/
-/package.json/
-/config/
-/conppser.json/
+
+# Uploads (exemplo)
+/public/uploads/*
+!/public/uploads/.gitkeep
