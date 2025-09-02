@@ -109,7 +109,7 @@ class usuarioController
             "token"     => $token,
             "expira_em" => $payload['exp'],
             "usuario"   => $safeUser
-        ]);
+        ],JSON_UNESCAPED_UNICODE);
         return;
 
     } catch (Exception $e) {
