@@ -123,7 +123,7 @@ gerente
 LOGIN 
 {
   "email": "joao.souza@teste.com",
-  "senha": "123456",
+  "senha": "123456"
 }
 
 
@@ -145,6 +145,19 @@ ANIMAL
   "producao_diaria_litros": 21.8,
   "observacoes": "Sem intercorrências recentes"
 }
+
+PUT
+
+http://localhost:8001/vaca/id
+{
+  "numero": "99999999",
+  "nome": "Pedra",
+  "raca": "Holandesa",
+  "descricao": "Sem intercorrências recentes"
+}
+
+ver id
+http://localhost:8001/vacas
 
 
 

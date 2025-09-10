@@ -81,7 +81,7 @@ class LeiteController
     }
 }
 
-   public function update()
+   public function update($id)
 {
     $data = json_decode(file_get_contents("php://input"));
 
@@ -154,7 +154,7 @@ class LeiteController
 
 
     
-    public function delete()
+    public function delete($id)
     {
 
         if($this->user_cargo != 'gerente'){
