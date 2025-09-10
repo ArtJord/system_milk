@@ -80,6 +80,47 @@ class Vaca
         return $stmt->execute([$numero_animal, $nome_animal, $raca, $observacoes, $id]);
     }
 
+    public function updateParcial(int $id, array $dados): bool
+{
+    // Lista branca de colunas válidas
+    $permitidos = [
+        'numero_animal',
+        'nome_animal',
+        'raca',
+        'sexo',
+        'data_nascimento',
+        'peso_kg',
+        'cor',
+        'statuss',
+        'estado_saude',
+        'ultima_vacinacao',
+        'proxima_vacinacao',
+        'status_reprodutivo',
+        'producao_diaria_litros',
+        'observacoes',
+        
+    ];
+
+    $sets = [];
+    $params = [':id' => $id];
+
+    foreach ($dados as $col => $val) {
+        if (!in_array($col, $permitidos, true)) continue;
+        $sets[] = "{$col} = :{$col}";
+        $params[":{$col}"] = $val;
+    }
+
+    if (empty($sets)) {
+        
+        return true;
+    }
+
+    $sql = "UPDATE animais SET " . implode(', ', $sets) . " WHERE id = :id";
+    $stmt = $this->pdo->prepare($sql);
+    return $stmt->execute($params);
+}
+
+
     public function delete($id)
     {
         $stmt = $this->pdo->prepare("DELETE FROM animais WHERE id = ?");
