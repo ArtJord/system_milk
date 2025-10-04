@@ -26,7 +26,8 @@ class LucroController
         $data = json_decode(file_get_contents("php://input"));
 
         try {
-            $ok = $this->lucro->create(
+            // Usa a função antiga, que agora retorna o registro completo
+            $novo = $this->lucro->create(
                 $data->data_receita    ?? null,
                 $data->categoria       ?? null,
                 $data->fonte_receita   ?? null,
@@ -34,8 +35,7 @@ class LucroController
                 $data->descricao       ?? null,
                 $data->quantidade      ?? null,
                 $data->preco_unitario  ?? null,
-                $data->valor_total     ?? null,
-                $data->nota_fiscal     ?? null,
+                $data->numero_nfe      ?? null,
                 $data->metodo_pagamento?? null,
                 $data->status_pagamento?? null,
                 $data->data_vencimento ?? null,
@@ -43,19 +43,19 @@ class LucroController
                 $data->observacoes     ?? null
             );
 
-            if ($ok) {
+            if ($novo) {
                 http_response_code(201);
-                echo json_encode(["message" => "Lucro registrado com sucesso."]);
+                header('Location: /lucro/' . $novo['id']);
+                echo json_encode(["lucro" => $novo]);
                 return;
             }
+
             http_response_code(500);
             echo json_encode(["message" => "Erro ao registrar o lucro."]);
-            return;
 
         } catch (Exception $e) {
             http_response_code(500);
             echo json_encode(["message" => "Erro: " . $e->getMessage()]);
-            return;
         }
     }
 
@@ -65,8 +65,9 @@ class LucroController
         $data = json_decode(file_get_contents("php://input")) ?: (object)[];
 
         try {
-            $ok = $this->lucro->update(
-                $id, 
+            // Função antiga retorna registro atualizado
+            $atualizado = $this->lucro->update(
+                $id,
                 $data->data_receita    ?? null,
                 $data->categoria       ?? null,
                 $data->fonte_receita   ?? null,
@@ -74,8 +75,7 @@ class LucroController
                 $data->descricao       ?? null,
                 $data->quantidade      ?? null,
                 $data->preco_unitario  ?? null,
-                $data->valor_total     ?? null,
-                $data->nota_fiscal     ?? null,
+                $data->numero_nfe      ?? null,
                 $data->metodo_pagamento?? null,
                 $data->status_pagamento?? null,
                 $data->data_vencimento ?? null,
@@ -83,24 +83,23 @@ class LucroController
                 $data->observacoes     ?? null
             );
 
-            if ($ok) {
+            if ($atualizado) {
                 http_response_code(200);
-                echo json_encode(["message" => "Lucro atualizado com sucesso."]);
+                echo json_encode(["lucro" => $atualizado]);
                 return;
             }
+
             http_response_code(500);
             echo json_encode(["message" => "Erro ao atualizar o lucro."]);
-            return;
 
         } catch (Exception $e) {
             http_response_code(500);
             echo json_encode(["message" => "Erro: " . $e->getMessage()]);
-            return;
         }
     }
 
     
-    public function getById($id): void
+   public function getById($id): void
     {
         try {
             $row = $this->lucro->getById($id);
@@ -110,38 +109,37 @@ class LucroController
                 echo json_encode(["lucro" => $row]);
                 return;
             }
+
             http_response_code(404);
             echo json_encode(["message" => "Lucro não encontrado."]);
-            return;
 
         } catch (Exception $e) {
             http_response_code(500);
             echo json_encode(["message" => "Erro: " . $e->getMessage()]);
-            return;
         }
     }
 
     
     public function getAll(): void
-    {
-        try {
-            
-            $rows = $this->lucro->getAllLucros();
-            http_response_code(200);
-            echo json_encode(["lucros" => $rows]);
-            return;
+{
+    try {
+        $inicio    = $_GET['inicio']    ?? null;
+        $fim       = $_GET['fim']       ?? null;
+        $categoria = $_GET['categoria'] ?? null;
 
-        } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode(["message" => "Erro: " . $e->getMessage()]);
-            return;
-        }
+        $rows = $this->lucro->getAllLucros($inicio, $fim, $categoria);
+
+        http_response_code(200);
+        echo json_encode(["lucros" => $rows]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(["message" => "Erro: " . $e->getMessage()]);
     }
-
+}
     
     public function delete($id): void
     {
-        if ($this->user_cargo !== 'gerente') {
+        if (strtolower($this->user_cargo) !== 'gerente') {
             http_response_code(403);
             echo json_encode(["message" => "Apenas o gerente pode excluir."]);
             return;
@@ -155,14 +153,13 @@ class LucroController
                 echo json_encode(["message" => "Lucro excluído com sucesso."]);
                 return;
             }
+
             http_response_code(500);
             echo json_encode(["message" => "Erro ao excluir o lucro."]);
-            return;
 
         } catch (Exception $e) {
             http_response_code(500);
             echo json_encode(["message" => "Erro: " . $e->getMessage()]);
-            return;
         }
     }
 }
