@@ -15,21 +15,21 @@ class Despesa
     }
 
      public function create(
-        $numero_despesa = null,
-        $data_despesa = null,
-        $prioridade = null,
-        $categoria = null,
-        $subcategoria = null,
-        $descricao = null,
-        $fornecedor = null,
-        $quantidade = null,
-        $preco_unitario = null,
-        $valor_total = null,
-        $numero_nfe = null,
-        $data_vencimento = null,
-        $data_pagamento = null,
-        $observacoes = null
-    ) {
+    $numero_despesa = null,
+    $data_despesa = null,
+    $prioridade = null,
+    $categoria = null,
+    $subcategoria = null,
+    $descricao = null,
+    $fornecedor = null,
+    $quantidade = null,
+    $preco_unitario = null,
+    $numero_nfe = null,
+    $data_vencimento = null,
+    $data_pagamento = null,
+    $observacoes = null
+) {
+    try {
         $sql = "INSERT INTO despesa (
             numero_despesa,
             data_despesa,
@@ -40,16 +40,14 @@ class Despesa
             fornecedor,
             quantidade,
             preco_unitario,
-            valor_total,
             numero_nfe,
             data_vencimento,
             data_pagamento,
             observacoes
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id";
 
         $stmt = $this->pdo->prepare($sql);
-
-        return $stmt->execute([
+        $stmt->execute([
             $numero_despesa,
             $data_despesa,
             $prioridade,
@@ -59,13 +57,19 @@ class Despesa
             $fornecedor,
             $quantidade,
             $preco_unitario,
-            $valor_total,
             $numero_nfe,
             $data_vencimento,
             $data_pagamento,
             $observacoes
         ]);
+
+        $id = $stmt->fetchColumn();
+        return $this->getById($id); // ✅ retorna o registro criado
+
+    } catch (Exception $e) {
+        throw new Exception("Erro ao criar despesa: " . $e->getMessage());
     }
+}
 
     public function update(
         $id,
@@ -122,18 +126,22 @@ class Despesa
         ]);
     }
 
-     public function getAllDespesas()
-    {
-        $stmt = $this->pdo->prepare("SELECT * FROM despesa");
-        $stmt->execute();
+     public function getAllDespesas($inicio = null, $fim = null, $categoria = null, $prioridade = null)
+{
+    $sql = "SELECT * FROM despesa WHERE 1=1";
+    $params = [];
 
-        $despesas = [];
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $despesas[] = $row;
-        }
+    if ($inicio)     { $sql .= " AND data_despesa >= ?"; $params[] = $inicio; }
+    if ($fim)        { $sql .= " AND data_despesa <= ?"; $params[] = $fim; }
+    if ($categoria)  { $sql .= " AND categoria = ?";     $params[] = $categoria; }
+    if ($prioridade) { $sql .= " AND prioridade = ?";    $params[] = $prioridade; }
 
-        return $despesas;
-    }
+    $sql .= " ORDER BY id DESC";
+
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
     public function getById($id)
     {

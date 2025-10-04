@@ -1,6 +1,6 @@
 <?php
 
-namespace App\controllers;
+namespace App\Controllers;
 
 use App\model\Despesa;
 use PDO;
@@ -17,7 +17,10 @@ class DespesaController
         $this->user_cargo = $user_cargo;
     }
 
-    public function setUserCargo($cargo) { $this->user_cargo = $cargo; }
+    public function setUserCargo($cargo)
+    {
+        $this->user_cargo = $cargo;
+    }
 
 
     public function create()
@@ -30,11 +33,11 @@ class DespesaController
             return;
         }
 
-        
+
         $valor_total = $data->quantidade * $data->preco_unitario;
 
         try {
-            $resultado = $this->despesa->create(
+            $novo = $this->despesa->create(
                 $data->numero_despesa ?? null,
                 $data->data_despesa,
                 $data->prioridade ?? null,
@@ -51,9 +54,11 @@ class DespesaController
                 $data->observacoes ?? null
             );
 
-            if ($resultado) {
-                http_response_code(200);
-                echo json_encode(["message" => "Despesa registrada com sucesso."]);
+            if ($novo) {
+                http_response_code(201);
+                header('Location: /despesa/' . $novo['id']);
+                echo json_encode(["despesa" => $novo]);
+                return;
             } else {
                 http_response_code(500);
                 echo json_encode(["message" => "Erro ao registrar a despesa."]);
@@ -64,11 +69,12 @@ class DespesaController
         }
     }
 
-     public function update()
+    public function update($id)
     {
         $data = json_decode(file_get_contents("php://input"));
 
-        if (!isset($data->id) || !isset($data->data_despesa) || !isset($data->quantidade) || !isset($data->preco_unitario)) {
+        //validacoes
+        if (!$id || !isset($data->data_despesa) || !isset($data->quantidade) || !isset($data->preco_unitario)) {
             http_response_code(400);
             echo json_encode(["message" => "ID, data da despesa, quantidade e preço unitário são obrigatórios."]);
             return;
@@ -77,8 +83,8 @@ class DespesaController
         $valor_total = $data->quantidade * $data->preco_unitario;
 
         try {
-            $resultado = $this->despesa->update(
-                $data->id,
+            $atualizado = $this->despesa->update(
+                $id,
                 $data->numero_despesa ?? null,
                 $data->data_despesa,
                 $data->prioridade ?? null,
@@ -95,13 +101,15 @@ class DespesaController
                 $data->observacoes ?? null
             );
 
-            if ($resultado) {
+            if ($atualizado) {
                 http_response_code(200);
-                echo json_encode(["message" => "Despesa atualizada com sucesso."]);
-            } else {
-                http_response_code(500);
-                echo json_encode(["message" => "Erro ao atualizar a despesa."]);
+
+                echo json_encode(["despesa" => $atualizado]);
+                return;
             }
+
+            http_response_code(500);
+            echo json_encode(["message" => "Erro ao atualizar a despesa."]);
         } catch (Exception $e) {
             http_response_code(500);
             echo json_encode(["message" => "Erro: " . $e->getMessage()]);
@@ -111,9 +119,15 @@ class DespesaController
     public function getAllDespesas()
     {
         try {
-            $despesas = $this->despesa->getAllDespesas();
+            $inicio     = $_GET['inicio']     ?? null;
+            $fim        = $_GET['fim']        ?? null;
+            $categoria  = $_GET['categoria']  ?? null;
+            $prioridade = $_GET['prioridade'] ?? null;
+
+            $rows = $this->despesa->getAllDespesas($inicio, $fim, $categoria, $prioridade);
+
             http_response_code(200);
-            echo json_encode(["despesas" => $despesas]);
+            echo json_encode(["despesas" => $rows]);
         } catch (Exception $e) {
             http_response_code(500);
             echo json_encode(["message" => "Erro: " . $e->getMessage()]);
@@ -138,46 +152,42 @@ class DespesaController
     }
 
     public function delete($id = null)
-{
-    // permissão
-    if ($this->user_cargo !== 'gerente') {
-        http_response_code(403);
-        echo json_encode(["message" => "Apenas o gerente pode excluir."]);
-        return;
-    }
-
-    // se não veio pela URL, tenta pegar do body
-    if ($id === null) {
-        $data = json_decode(file_get_contents("php://input"));
-        if (isset($data->id)) {
-            $id = (int)$data->id;
-        }
-    }
-
-    if (!$id) {
-        http_response_code(400);
-        echo json_encode(["message" => "ID é obrigatório para excluir a despesa."]);
-        return;
-    }
-
-    try {
-        $ok = $this->despesa->delete($id);
-        if ($ok) {
-            http_response_code(200);
-            echo json_encode(["message" => "Despesa excluída com sucesso."]);
+    {
+        // permissão
+        if ($this->user_cargo !== 'gerente') {
+            http_response_code(403);
+            echo json_encode(["message" => "Apenas o gerente pode excluir."]);
             return;
         }
-        http_response_code(500);
-        echo json_encode(["message" => "Erro ao excluir a despesa."]);
-        return;
 
-    } catch (Exception $e) {
-        http_response_code(500);
-        echo json_encode(["message" => "Erro: " . $e->getMessage()]);
-        return;
+        // se não veio pela URL, tenta pegar do body
+        if ($id === null) {
+            $data = json_decode(file_get_contents("php://input"));
+            if (isset($data->id)) {
+                $id = (int)$data->id;
+            }
+        }
+
+        if (!$id) {
+            http_response_code(400);
+            echo json_encode(["message" => "ID é obrigatório para excluir a despesa."]);
+            return;
+        }
+
+        try {
+            $ok = $this->despesa->delete($id);
+            if ($ok) {
+                http_response_code(200);
+                echo json_encode(["message" => "Despesa excluída com sucesso."]);
+                return;
+            }
+            http_response_code(500);
+            echo json_encode(["message" => "Erro ao excluir a despesa."]);
+            return;
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "Erro: " . $e->getMessage()]);
+            return;
+        }
     }
 }
-
-}
-
-
