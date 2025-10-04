@@ -50,11 +50,11 @@ class VacaController
 
         if ($resultado) {
             http_response_code(201); 
-            echo json_encode(["message" => "Vaca cadastrada com sucesso."]);
+            echo json_encode(["message" => "Animal cadastrada com sucesso."]);
             exit;
         } else {
             http_response_code(500);
-            echo json_encode(["message" => "Erro ao cadastrar vaca."]);
+            echo json_encode(["message" => "Erro ao cadastrar o animal."]);
             exit;
         }
 
@@ -66,37 +66,80 @@ class VacaController
 }
 
 
-    public function update($id)
-    {
-        $data = json_decode(file_get_contents("php://input"));
+   public function update($id)
+{
+    header('Content-Type: application/json; charset=utf-8');
 
-        if (!isset($data->numero)) {
-            http_response_code(400);
-            echo json_encode(["message" => "O número é obrigatório para atualizar a vaca."]);
+    
+    $raw = file_get_contents('php://input');
+    $json = json_decode($raw, true);
+    $data = is_array($json) ? $json : $_POST;
+
+    try {
+        
+        $id = (int) $id;
+        $atual = $this->vaca->findById($id);
+        if (!$atual) {
+            http_response_code(404);
+            echo json_encode(['message' => 'Animal não encontrado.']);
             return;
         }
 
-        try {
-            $resultado = $this->vaca->update(
-                $id,
-                $data->numero,
-                isset($data->nome) ? $data->nome : null,
-                isset($data->raca) ? $data->raca : null,
-                isset($data->descricao) ? $data->descricao : null
-            );
+        
+        $numero_animal = $data['numero_animal'] ?? $data['numero'] ?? $atual['numero_animal'] ?? null;
 
-            if ($resultado) {
-                http_response_code(200);
-                echo json_encode(["message" => "Vaca atualizada com sucesso."]);
-            } else {
-                http_response_code(500);
-                echo json_encode(["message" => "Erro ao atualizar vaca."]);
-            }
-        } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode(["message" => "Erro ao atualizar vaca: " . $e->getMessage()]);
+        
+        $dados = [
+            'numero_animal'          => $numero_animal,
+            'nome_animal'            => $data['nome_animal']            ?? $data['nome']            ?? $atual['nome_animal'],
+            'raca'                   => $data['raca']                   ?? $atual['raca'],
+            'sexo'                   => $data['sexo']                   ?? $atual['sexo'],
+            'data_nascimento'        => $data['data_nascimento']        ?? $atual['data_nascimento'],
+            'peso_kg'                => $data['peso_kg']                ?? $atual['peso_kg'],
+            'cor'                    => $data['cor']                    ?? $atual['cor'],
+            'statuss'                => $data['statuss']                ?? $atual['statuss'],
+            'estado_saude'           => $data['estado_saude']           ?? $atual['estado_saude'],
+            'ultima_vacinacao'       => $data['ultima_vacinacao']       ?? $atual['ultima_vacinacao'],
+            'proxima_vacinacao'      => $data['proxima_vacinacao']      ?? $atual['proxima_vacinacao'],
+            'status_reprodutivo'     => $data['status_reprodutivo']     ?? $atual['status_reprodutivo'],
+            'producao_diaria_litros' => $data['producao_diaria_litros'] ?? $atual['producao_diaria_litros'],
+            'observacoes'            => $data['observacoes']            ?? $atual['observacoes'],
+        ];
+
+        
+        $erros = [];
+        if (empty($dados['numero_animal'])) $erros[] = 'O número é obrigatório.';
+        if (empty($dados['nome_animal']))   $erros[] = 'O nome é obrigatório.';
+        if (empty($dados['raca']))          $erros[] = 'A raça é obrigatória.';
+        if (empty($dados['sexo']))          $erros[] = 'O sexo é obrigatório.';
+        if (empty($dados['statuss']))       $erros[] = 'O status é obrigatório.';
+        if ($erros) {
+            http_response_code(400);
+            echo json_encode(['message' => implode(' ', $erros)]);
+            return;
         }
+
+        
+        if (is_string($dados['sexo'])) {
+            $dados['sexo'] = strtoupper(trim($dados['sexo'])) === 'F' ? 'F' : 'M';
+        }
+
+        
+        $ok = $this->vaca->updateParcial($id, $dados);
+
+        if ($ok) {
+            http_response_code(200);
+            echo json_encode(['message' => 'Animal atualizado com sucesso.']);
+        } else {
+            http_response_code(500);
+            echo json_encode(['message' => 'Erro ao atualizar o animal.']);
+        }
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['message' => 'Erro ao atualizar o animal: ' . $e->getMessage()]);
     }
+}
+
 
 
     public function delete($id)
@@ -106,14 +149,14 @@ class VacaController
 
             if ($resultado) {
                 http_response_code(200);
-                echo json_encode(["message" => "Vaca deletada com sucesso."]);
+                echo json_encode(["message" => "Animal deletada com sucesso."]);
             } else {
                 http_response_code(500);
-                echo json_encode(["message" => "Erro ao deletar vaca."]);
+                echo json_encode(["message" => "Erro ao deletar o animal."]);
             }
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(["message" => "Erro ao deletar vaca: " . $e->getMessage()]);
+            echo json_encode(["message" => "Erro ao deletar animal: " . $e->getMessage()]);
         }
     }
 
@@ -127,7 +170,7 @@ class VacaController
             echo json_encode($vacas);
         } else {
             http_response_code(404);
-            echo json_encode(["message" => "Nenhuma vaca encontrada."]);
+            echo json_encode(["message" => "Nenhum animal encontrado."]);
         }
     }
 
@@ -147,12 +190,12 @@ class VacaController
         } else {
             
             http_response_code(404);
-            echo json_encode(["message" => "Vaca não encontrada"]);
+            echo json_encode(["message" => "Animal não encontrado"]);
         }
     } catch (Exception $e) {
         
         http_response_code(500);
-        echo json_encode(["message" => "Erro ao buscar vaca: " . $e->getMessage()]);
+        echo json_encode(["message" => "Erro ao buscar animal: " . $e->getMessage()]);
     }
 }
 
