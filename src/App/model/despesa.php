@@ -14,23 +14,23 @@ class Despesa
         $this->pdo = $db;
     }
 
-     public function create(
-    $numero_despesa = null,
-    $data_despesa = null,
-    $prioridade = null,
-    $categoria = null,
-    $subcategoria = null,
-    $descricao = null,
-    $fornecedor = null,
-    $quantidade = null,
-    $preco_unitario = null,
-    $numero_nfe = null,
-    $data_vencimento = null,
-    $data_pagamento = null,
-    $observacoes = null
-) {
-    try {
-        $sql = "INSERT INTO despesa (
+    public function create(
+        $numero_despesa = null,
+        $data_despesa = null,
+        $prioridade = null,
+        $categoria = null,
+        $subcategoria = null,
+        $descricao = null,
+        $fornecedor = null,
+        $quantidade = null,
+        $preco_unitario = null,
+        $numero_nfe = null,
+        $data_vencimento = null,
+        $data_pagamento = null,
+        $observacoes = null
+    ) {
+        try {
+            $sql = "INSERT INTO despesa (
             numero_despesa,
             data_despesa,
             prioridade,
@@ -46,30 +46,29 @@ class Despesa
             observacoes
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id";
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            $numero_despesa,
-            $data_despesa,
-            $prioridade,
-            $categoria,
-            $subcategoria,
-            $descricao,
-            $fornecedor,
-            $quantidade,
-            $preco_unitario,
-            $numero_nfe,
-            $data_vencimento,
-            $data_pagamento,
-            $observacoes
-        ]);
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([
+                $numero_despesa,
+                $data_despesa,
+                $prioridade,
+                $categoria,
+                $subcategoria,
+                $descricao,
+                $fornecedor,
+                $quantidade,
+                $preco_unitario,
+                $numero_nfe,
+                $data_vencimento,
+                $data_pagamento,
+                $observacoes
+            ]);
 
-        $id = $stmt->fetchColumn();
-        return $this->getById($id); // ✅ retorna o registro criado
-
-    } catch (Exception $e) {
-        throw new Exception("Erro ao criar despesa: " . $e->getMessage());
+            $id = $stmt->fetchColumn();
+            return $this->getById($id);
+        } catch (Exception $e) {
+            throw new Exception("Erro ao criar despesa: " . $e->getMessage());
+        }
     }
-}
 
     public function update(
         $id,
@@ -82,66 +81,80 @@ class Despesa
         $fornecedor = null,
         $quantidade = null,
         $preco_unitario = null,
-        $valor_total = null,
         $numero_nfe = null,
         $data_vencimento = null,
         $data_pagamento = null,
         $observacoes = null
     ) {
-        $sql = "UPDATE despesa SET 
-            numero_despesa = ?, 
-            data_despesa = ?, 
-            prioridade = ?, 
-            categoria = ?, 
-            subcategoria = ?, 
-            descricao = ?, 
-            fornecedor = ?, 
-            quantidade = ?, 
-            preco_unitario = ?, 
-            valor_total = ?, 
-            numero_nfe = ?, 
-            data_vencimento = ?, 
-            data_pagamento = ?, 
-            observacoes = ?
+        try {
+            $sql = "UPDATE despesa SET
+            numero_despesa = ?,
+            data_despesa = ?,
+            prioridade    = ?,
+            categoria     = ?,
+            subcategoria  = ?,
+            descricao     = ?,
+            fornecedor    = ?,
+            quantidade    = ?,
+            preco_unitario= ?,
+            numero_nfe    = ?,
+            data_vencimento = ?,
+            data_pagamento  = ?,
+            observacoes     = ?
         WHERE id = ?";
 
-        $stmt = $this->pdo->prepare($sql);
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([
+                $numero_despesa,
+                $data_despesa,
+                $prioridade,
+                $categoria,
+                $subcategoria,
+                $descricao,
+                $fornecedor,
+                $quantidade,
+                $preco_unitario,
+                $numero_nfe,
+                $data_vencimento,
+                $data_pagamento,
+                $observacoes,
+                $id
+            ]);
 
-        return $stmt->execute([
-            $numero_despesa,
-            $data_despesa,
-            $prioridade,
-            $categoria,
-            $subcategoria,
-            $descricao,
-            $fornecedor,
-            $quantidade,
-            $preco_unitario,
-            $valor_total,
-            $numero_nfe,
-            $data_vencimento,
-            $data_pagamento,
-            $observacoes,
-            $id
-        ]);
+            return $this->getById($id);
+        } catch (Exception $e) {
+            throw new Exception("Erro ao atualizar despesa: " . $e->getMessage());
+        }
     }
 
-     public function getAllDespesas($inicio = null, $fim = null, $categoria = null, $prioridade = null)
-{
-    $sql = "SELECT * FROM despesa WHERE 1=1";
-    $params = [];
+    public function getAllDespesas($inicio = null, $fim = null, $categoria = null, $prioridade = null)
+    {
+        $sql = "SELECT * FROM despesa WHERE 1=1";
+        $params = [];
 
-    if ($inicio)     { $sql .= " AND data_despesa >= ?"; $params[] = $inicio; }
-    if ($fim)        { $sql .= " AND data_despesa <= ?"; $params[] = $fim; }
-    if ($categoria)  { $sql .= " AND categoria = ?";     $params[] = $categoria; }
-    if ($prioridade) { $sql .= " AND prioridade = ?";    $params[] = $prioridade; }
+        if ($inicio) {
+            $sql .= " AND data_despesa >= ?";
+            $params[] = $inicio;
+        }
+        if ($fim) {
+            $sql .= " AND data_despesa <= ?";
+            $params[] = $fim;
+        }
+        if ($categoria) {
+            $sql .= " AND categoria = ?";
+            $params[] = $categoria;
+        }
+        if ($prioridade) {
+            $sql .= " AND prioridade = ?";
+            $params[] = $prioridade;
+        }
 
-    $sql .= " ORDER BY id DESC";
+        $sql .= " ORDER BY id DESC";
 
-    $stmt = $this->pdo->prepare($sql);
-    $stmt->execute($params);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     public function getById($id)
     {
@@ -156,4 +169,3 @@ class Despesa
         return $stmt->execute([$id]);
     }
 }
-
