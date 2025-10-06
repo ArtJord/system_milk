@@ -149,36 +149,34 @@ $router->add('PUT',   '/lucro/{id}',   $guard([$lucroController, 'update']));
 $router->add('DELETE','/lucro/{id}',   $guard([$lucroController, 'delete'], ['gerente']));
 
 
-// index.php
 
-// (1) Método HTTP
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
-// (2) Path solicitado, sem query string
+
 $rawPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 
-// (3) Remove o diretório base (ex.: /system_milk) e o próprio index.php
-$scriptName = $_SERVER['SCRIPT_NAME'] ?? '';         // ex.: /system_milk/index.php
-$scriptDir  = rtrim(str_replace('\\', '/', dirname($scriptName)), '/'); // ex.: /system_milk
+
+$scriptName = $_SERVER['SCRIPT_NAME'] ?? '';         
+$scriptDir  = rtrim(str_replace('\\', '/', dirname($scriptName)), '/'); 
 
 $path = $rawPath;
 
-// Se URL contém /index.php no caminho, remove
+
 if (strpos($path, $scriptName) === 0) {
     $path = substr($path, strlen($scriptName));
 }
-// Se URL contém apenas o diretório base (sem index.php), remove também
+
 elseif ($scriptDir && strpos($path, $scriptDir) === 0) {
     $path = substr($path, strlen($scriptDir));
 }
 
-// Normaliza: garante que começa com /
+
 $path = '/' . ltrim($path, '/');
 
-// Remove barra final (exceto raiz)
+
 if ($path !== '/' && substr($path, -1) === '/') {
     $path = rtrim($path, '/');
 }
 
-// (4) Despacha
+
 $router->dispatch($method, $path);
