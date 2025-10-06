@@ -33,9 +33,6 @@ class DespesaController
             return;
         }
 
-
-        $valor_total = $data->quantidade * $data->preco_unitario;
-
         try {
             $novo = $this->despesa->create(
                 $data->numero_despesa ?? null,
@@ -47,7 +44,6 @@ class DespesaController
                 $data->fornecedor ?? null,
                 $data->quantidade,
                 $data->preco_unitario,
-                $valor_total,
                 $data->numero_nfe ?? null,
                 $data->data_vencimento ?? null,
                 $data->data_pagamento ?? null,
@@ -59,10 +55,10 @@ class DespesaController
                 header('Location: /despesa/' . $novo['id']);
                 echo json_encode(["despesa" => $novo]);
                 return;
-            } else {
-                http_response_code(500);
-                echo json_encode(["message" => "Erro ao registrar a despesa."]);
             }
+
+            http_response_code(500);
+            echo json_encode(["message" => "Erro ao registrar a despesa."]);
         } catch (Exception $e) {
             http_response_code(500);
             echo json_encode(["message" => "Erro: " . $e->getMessage()]);
@@ -73,14 +69,11 @@ class DespesaController
     {
         $data = json_decode(file_get_contents("php://input"));
 
-        //validacoes
         if (!$id || !isset($data->data_despesa) || !isset($data->quantidade) || !isset($data->preco_unitario)) {
             http_response_code(400);
             echo json_encode(["message" => "ID, data da despesa, quantidade e preço unitário são obrigatórios."]);
             return;
         }
-
-        $valor_total = $data->quantidade * $data->preco_unitario;
 
         try {
             $atualizado = $this->despesa->update(
@@ -94,7 +87,6 @@ class DespesaController
                 $data->fornecedor ?? null,
                 $data->quantidade,
                 $data->preco_unitario,
-                $valor_total,
                 $data->numero_nfe ?? null,
                 $data->data_vencimento ?? null,
                 $data->data_pagamento ?? null,
@@ -103,7 +95,6 @@ class DespesaController
 
             if ($atualizado) {
                 http_response_code(200);
-
                 echo json_encode(["despesa" => $atualizado]);
                 return;
             }
@@ -115,7 +106,6 @@ class DespesaController
             echo json_encode(["message" => "Erro: " . $e->getMessage()]);
         }
     }
-
     public function getAllDespesas()
     {
         try {
