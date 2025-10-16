@@ -25,34 +25,53 @@ class DespesaController
 
     public function create()
     {
-        $data = json_decode(file_get_contents("php://input"));
-
-        if (!isset($data->data_despesa) || !isset($data->quantidade) || !isset($data->preco_unitario)) {
-            http_response_code(400);
-            echo json_encode(["message" => "Data da despesa, quantidade e preço unitário são obrigatórios."]);
-            return;
-        }
 
         try {
+            $data = json_decode(file_get_contents("php://input"));
+            if (!$data) {
+                http_response_code(400);
+                echo json_encode(["message" => "Envie os dados da despesa."]);
+                return;
+            }
+
+            // normalizar: "" -> null
+            foreach ($data as $k => $v) {
+                if (is_string($v) && trim($v) === "") $data->$k = null;
+            }
+
+            // validação
+            $errors = [];
+            if (empty($data->data_despesa))  $errors["data_despesa"] = "Data da despesa é obrigatória.";
+            if (empty($data->fornecedor))    $errors["fornecedor"]   = "Informe o fornecedor.";
+            $qtd = isset($data->quantidade) ? (float)$data->quantidade : 0;
+            $pu  = isset($data->preco_unitario) ? (float)$data->preco_unitario : 0;
+            if (!($qtd > 0 && $pu > 0))      $errors["preco"]        = "Informe quantidade e preço unitário maiores que zero.";
+
+            if (!empty($errors)) {
+                http_response_code(422);
+                echo json_encode(["message" => "Há campos inválidos.", "details" => $errors]);
+                return;
+            }
+
+            // chama o model (ajuste se sua assinatura for diferente)
             $novo = $this->despesa->create(
                 $data->numero_despesa ?? null,
-                $data->data_despesa,
-                $data->prioridade ?? null,
-                $data->categoria ?? null,
-                $data->subcategoria ?? null,
-                $data->descricao ?? null,
-                $data->fornecedor ?? null,
-                $data->quantidade,
-                $data->preco_unitario,
-                $data->numero_nfe ?? null,
+                $data->data_despesa   ?? null,
+                $data->prioridade     ?? null,
+                $data->categoria      ?? null,
+                $data->subcategoria   ?? null,
+                $data->descricao      ?? null,
+                $data->fornecedor     ?? null,
+                $qtd,
+                $pu,
+                $data->numero_nfe     ?? null,
                 $data->data_vencimento ?? null,
                 $data->data_pagamento ?? null,
-                $data->observacoes ?? null
+                $data->observacoes    ?? null
             );
 
             if ($novo) {
                 http_response_code(201);
-                header('Location: /despesa/' . $novo['id']);
                 echo json_encode(["despesa" => $novo]);
                 return;
             }
@@ -61,51 +80,71 @@ class DespesaController
             echo json_encode(["message" => "Erro ao registrar a despesa."]);
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(["message" => "Erro: " . $e->getMessage()]);
+            echo json_encode(["message" => "Falha ao processar sua solicitação."]);
         }
     }
 
+   
+
+    
     public function update($id)
     {
+       try {
         $data = json_decode(file_get_contents("php://input"));
-
-        if (!$id || !isset($data->data_despesa) || !isset($data->quantidade) || !isset($data->preco_unitario)) {
+        if (!$data) {
             http_response_code(400);
-            echo json_encode(["message" => "ID, data da despesa, quantidade e preço unitário são obrigatórios."]);
+            echo json_encode(["message" => "Envie os dados da despesa."]);
             return;
         }
 
-        try {
-            $atualizado = $this->despesa->update(
-                $id,
-                $data->numero_despesa ?? null,
-                $data->data_despesa,
-                $data->prioridade ?? null,
-                $data->categoria ?? null,
-                $data->subcategoria ?? null,
-                $data->descricao ?? null,
-                $data->fornecedor ?? null,
-                $data->quantidade,
-                $data->preco_unitario,
-                $data->numero_nfe ?? null,
-                $data->data_vencimento ?? null,
-                $data->data_pagamento ?? null,
-                $data->observacoes ?? null
-            );
-
-            if ($atualizado) {
-                http_response_code(200);
-                echo json_encode(["despesa" => $atualizado]);
-                return;
-            }
-
-            http_response_code(500);
-            echo json_encode(["message" => "Erro ao atualizar a despesa."]);
-        } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode(["message" => "Erro: " . $e->getMessage()]);
+        foreach ($data as $k => $v) {
+            if (is_string($v) && trim($v) === "") $data->$k = null;
         }
+
+        $errors = [];
+        if (empty($data->data_despesa))  $errors["data_despesa"] = "Data da despesa é obrigatória.";
+        if (empty($data->fornecedor))    $errors["fornecedor"]   = "Informe o fornecedor.";
+        $qtd = isset($data->quantidade) ? (float)$data->quantidade : 0;
+        $pu  = isset($data->preco_unitario) ? (float)$data->preco_unitario : 0;
+        if (!($qtd > 0 && $pu > 0))      $errors["preco"]        = "Informe quantidade e preço unitário maiores que zero.";
+
+        if (!empty($errors)) {
+            http_response_code(422);
+            echo json_encode(["message" => "Há campos inválidos.", "details" => $errors]);
+            return;
+        }
+
+        $ok = $this->despesa->update(
+            $id,
+            $data->numero_despesa ?? null,
+            $data->data_despesa   ?? null,
+            $data->prioridade     ?? null,
+            $data->categoria      ?? null,
+            $data->subcategoria   ?? null,
+            $data->descricao      ?? null,
+            $data->fornecedor     ?? null,
+            $qtd,
+            $pu,
+            $data->numero_nfe     ?? null,
+            $data->data_vencimento?? null,
+            $data->data_pagamento ?? null,
+            $data->observacoes    ?? null
+        );
+
+        if ($ok) {
+            http_response_code(200);
+            echo json_encode(["despesa" => $ok]);
+            return;
+        }
+
+        http_response_code(500);
+        echo json_encode(["message" => "Erro ao atualizar a despesa."]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(["message" => "Falha ao processar sua solicitação."]);
     }
+}
+
     public function getAllDespesas()
     {
         try {

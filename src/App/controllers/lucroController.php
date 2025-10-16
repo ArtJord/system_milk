@@ -23,9 +23,19 @@ class LucroController
     
     public function create(): void
     {
-        $data = json_decode(file_get_contents("php://input"));
+        $data = json_decode(file_get_contents("php://input")) ?: (object)[];
 
         try {
+            // Validação simples (lado servidor) para mensagem amigável
+            $todosVazios = true;
+            foreach (['data_receita','categoria','fonte_receita','cliente','descricao','quantidade','preco_unitario','numero_nfe','metodo_pagamento','status_pagamento','data_vencimento','data_pagamento','observacoes'] as $k) {
+                if (isset($data->$k) && $data->$k !== null && $data->$k !== '') { $todosVazios = false; break; }
+            }
+            if ($todosVazios) {
+                http_response_code(400);
+                echo json_encode(["message" => "Preencha os dados do lançamento para continuar."]);
+                return;
+            }
             // Usa a função antiga, que agora retorna o registro completo
             $novo = $this->lucro->create(
                 $data->data_receita    ?? null,
@@ -43,7 +53,7 @@ class LucroController
                 $data->observacoes     ?? null
             );
 
-            if ($novo) {
+           if ($novo) {
                 http_response_code(201);
                 header('Location: /lucro/' . $novo['id']);
                 echo json_encode(["lucro" => $novo]);
@@ -55,7 +65,7 @@ class LucroController
 
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(["message" => "Erro: " . $e->getMessage()]);
+            echo json_encode(["message" => "Falha ao processar sua solicitação."]);
         }
     }
 
@@ -94,12 +104,12 @@ class LucroController
 
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(["message" => "Erro: " . $e->getMessage()]);
+            echo json_encode(["message" => "Falha ao processar sua solicitação."]);
         }
     }
 
     
-   public function getById($id): void
+   public function getById($id): void 
     {
         try {
             $row = $this->lucro->getById($id);
@@ -115,7 +125,7 @@ class LucroController
 
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(["message" => "Erro: " . $e->getMessage()]);
+            echo json_encode(["message" => "Falha ao processar sua solicitação."]);
         }
     }
 
@@ -129,11 +139,11 @@ class LucroController
 
         $rows = $this->lucro->getAllLucros($inicio, $fim, $categoria);
 
-        http_response_code(200);
+         http_response_code(200);
         echo json_encode(["lucros" => $rows]);
     } catch (Exception $e) {
         http_response_code(500);
-        echo json_encode(["message" => "Erro: " . $e->getMessage()]);
+        echo json_encode(["message" => "Falha ao processar sua solicitação."]);
     }
 }
     
@@ -159,7 +169,7 @@ class LucroController
 
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(["message" => "Erro: " . $e->getMessage()]);
+            echo json_encode(["message" => "Falha ao processar sua solicitação."]);
         }
     }
 }
