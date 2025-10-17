@@ -1,4 +1,4 @@
-# 🐄 System Milk — Gestão de Leiteria (TCC)
+# 🐄 System Milk — Gestão de Leiteria
 
 > Plataforma web para controle de produção de leite, cadastros de animais e gestão financeira (lucros e despesas).  
 > Desenvolvido em **Vue 3 + Vite** (frontend), **PHP 8** (backend) e **PostgreSQL** (banco de dados).
