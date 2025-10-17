@@ -40,3 +40,20 @@ O **System Milk** centraliza as rotinas de uma leiteria em módulos simples e pr
 
 ---
 
+## 🔗 Links Rápidos
+
+- **Frontend:** `frontend/src/views/Lucro.vue`
+- **HTTP Client:** `frontend/src/lib/http.js`
+- **Rotas de API:** `backend/routes/`
+- **Schema do Banco:** `database/schema.sql`
+
+---
+
+## 📌 Status Atual
+
+✅ Módulos de **Leite** e **Lucros** totalmente funcionais.  
+🧩 Ajustes em andamento para padronização de rotas e respostas da API (`POST /lucros`).  
+🚀 Integração futura com módulo de **Despesas** e **Dashboard** de relatórios.
+
+---
+
