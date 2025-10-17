@@ -61,11 +61,60 @@ O **System Milk** centraliza as rotinas de uma leiteria em módulos simples e pr
 
 > Pré-requisitos: **Node 18+**, **npm** ou **pnpm**, **PHP 8.1+**, **PostgreSQL 13+**.
 
-### 2.1. Clonar o projeto
+### Clonar o projeto
 ```bash
 git clone https://github.com/SEU_USUARIO/system-milk.git
 cd system-milk
 ```
+
+### Backend (PHP)
+
+## Estrutura sugerida:
+```
+backend/
+  public/index.php        # ponto de entrada
+  routes/                 # define endpoints (ex.: /lucros, /leite)
+  src/                    # controllers/services/dao
+```
+
+### Variáveis de ambiente (crie backend/.env):
+```
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=system_milk
+DB_USER=system_milk_user
+DB_PASS=system_milk_pass
+
+# CORS (ajuste conforme porta do front)
+CORS_ORIGIN=http://localhost:5173
+```
+
+### Subir servidor PHP (dev)
+```
+cd backend
+php -S localhost:8001 -t public
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
