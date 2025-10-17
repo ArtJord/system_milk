@@ -57,3 +57,15 @@ O **System Milk** centraliza as rotinas de uma leiteria em módulos simples e pr
 
 ---
 
+# 🛠️ Parte 2 — Setup Local (Frontend + Backend + Banco)
+
+> Pré-requisitos: **Node 18+**, **npm** ou **pnpm**, **PHP 8.1+**, **PostgreSQL 13+**.
+
+### 2.1. Clonar o projeto
+```bash
+git clone https://github.com/SEU_USUARIO/system-milk.git
+cd system-milk
+```
+
+
+
