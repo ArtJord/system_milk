@@ -29,3 +29,14 @@ O **System Milk** centraliza as rotinas de uma leiteria em módulos simples e pr
 
 ---
 
+## ✨ Destaques do Projeto
+
+- Interface moderna e responsiva.
+- Estrutura organizada com Composition API.
+- Feedback visual (toasts, modais e mensagens de erro).
+- Cálculo automático de valores e validação de campos.
+- Filtros por período, categoria e busca textual.
+- API RESTful padronizada (`/leite`, `/lucros`, etc.).
+
+---
+
