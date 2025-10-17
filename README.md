@@ -19,3 +19,13 @@ O **System Milk** centraliza as rotinas de uma leiteria em módulos simples e pr
 
 ---
 
+## ⚙️ Stack Principal
+
+| Camada | Tecnologia |
+|--------|-------------|
+| **Frontend** | Vue 3 (Composition API), Vite, TailwindCSS, Axios |
+| **Backend** | PHP 8 (roteamento leve com JSON APIs REST) |
+| **Banco de Dados** | PostgreSQL |
+
+---
+
