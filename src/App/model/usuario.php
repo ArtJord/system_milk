@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\model;
 
@@ -13,8 +13,8 @@ class usuario
     {
         $this->pdo = $db;
     }
-    
-     // Criação de usuário com campos opcionais
+
+    // Criação de usuário com campos opcionais
     public function create($nome, $email, $senha, $cargo, $telefone = null, $endereco = null, $cidade = null, $estado = null, $cep = null)
     {
         $senha_criptografada = password_hash($senha, PASSWORD_BCRYPT);
@@ -25,7 +25,7 @@ class usuario
         ");
 
 
-      
+
         return $stmt->execute([
             $nome,
             $email,
@@ -53,7 +53,7 @@ class usuario
         return false;
     }
 
-   // Verifica se o usuário tem o cargo necessário
+    // Verifica se o usuário tem o cargo necessário
     public function verificarCargo($id, $cargo_necessario)
     {
         $stmt = $this->pdo->prepare("SELECT cargo FROM usuarios WHERE id = ?");
@@ -64,7 +64,7 @@ class usuario
         return $usuario && $usuario['cargo'] === $cargo_necessario;
     }
 
-      // Buscar dados de perfil
+    // Buscar dados de perfil
     public function findById($id)
     {
         $stmt = $this->pdo->prepare("
@@ -78,21 +78,59 @@ class usuario
 
     // Atualizar perfil (implementação futura)
     public function atualizarPerfil($id, $telefone = null, $endereco = null, $cidade = null, $estado = null, $cep = null)
-{
-    $stmt = $this->pdo->prepare("
+    {
+        $stmt = $this->pdo->prepare("
         UPDATE usuarios
         SET telefone = ?, endereco = ?, cidade = ?, estado = ?, cep = ?
         WHERE id = ?
     ");
 
-    return $stmt->execute([
-        $telefone,
-        $endereco,
-        $cidade,
-        $estado,
-        $cep,
-        $id
-    ]);
-}
+        return $stmt->execute([
+            $telefone,
+            $endereco,
+            $cidade,
+            $estado,
+            $cep,
+            $id
+        ]);
+    }
 
+    public function getById(int $id): array|null
+    {
+        $st = $this->pdo->prepare("SELECT id, nome, email, cargo, senha FROM usuarios WHERE id = ?");
+        $st->execute([$id]);
+        return $st->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    public function emailExists(string $email, ?int $ignoreId = null): bool
+    {
+        if ($ignoreId) {
+            $st = $this->pdo->prepare("SELECT 1 FROM usuarios WHERE email = ? AND id <> ? LIMIT 1");
+            $st->execute([$email, $ignoreId]);
+        } else {
+            $st = $this->pdo->prepare("SELECT 1 FROM usuarios WHERE email = ? LIMIT 1");
+            $st->execute([$email]);
+        }
+        return (bool)$st->fetchColumn();
+    }
+
+    public function updateBasic(int $id, string $nome, string $email): bool
+    {
+        $st = $this->pdo->prepare("UPDATE usuarios SET nome = ?, email = ? WHERE id = ?");
+        return $st->execute([$nome, $email, $id]);
+    }
+
+    public function checkPassword(int $id, string $plain): bool
+    {
+        $st = $this->pdo->prepare("SELECT senha FROM usuarios WHERE id = ?");
+        $st->execute([$id]);
+        $hash = $st->fetchColumn();
+        return $hash ? password_verify($plain, $hash) : false;
+    }
+
+    public function updatePassword(int $id, string $hash): bool
+    {
+        $st = $this->pdo->prepare("UPDATE usuarios SET senha = ? WHERE id = ?");
+        return $st->execute([$hash, $id]);
+    }
 }

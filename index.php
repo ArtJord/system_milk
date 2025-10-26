@@ -131,6 +131,9 @@ $router->add("POST",   "/somaleite",   [$leiteController, 'somarLeite']);
 $router->add("POST", "/usuario", [$usuarioController, 'create']);
 $router->add("POST", "/login", [$usuarioController, 'login']);
 
+$router->add("GET",   "/me",             $guard([$usuarioController, 'me']));
+$router->add("PATCH", "/usuario/{id}",   $guard([$usuarioController, 'updateBasic']));
+
 
 // Despesas
 $router->add("POST",  "/despesa",      $guard([$despesaController, 'create']));
