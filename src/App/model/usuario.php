@@ -76,7 +76,7 @@ class usuario
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    // Atualizar perfil (implementação futura)
+    
     public function atualizarPerfil($id, $telefone = null, $endereco = null, $cidade = null, $estado = null, $cep = null)
     {
         $stmt = $this->pdo->prepare("
@@ -133,4 +133,22 @@ class usuario
         $st = $this->pdo->prepare("UPDATE usuarios SET senha = ? WHERE id = ?");
         return $st->execute([$hash, $id]);
     }
+
+    public function getAllUsers(): array
+{
+    
+    $st = $this->pdo->prepare("
+        SELECT id, nome, email, cargo, created_at
+        FROM usuarios
+        ORDER BY nome ASC
+    ");
+    $st->execute();
+    return $st->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function countAll(): int
+{
+    $st = $this->pdo->query("SELECT COUNT(*) FROM usuarios");
+    return (int)$st->fetchColumn();
+}
 }

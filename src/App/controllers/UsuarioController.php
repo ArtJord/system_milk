@@ -75,7 +75,7 @@ class usuarioController
                 return;
             }
 
-            //Carrega as configs do JWT:
+            
             $cfg = require dirname(__DIR__, 3) . '/config/jwt.php';
 
             //Monta o payload e assina o toke
@@ -102,7 +102,7 @@ class usuarioController
                 'telefone' => $usuario['telefone'] ?? null
             ];
 
-            //Retorna o token e dados seguros do usuario
+           
             http_response_code(200);
             echo json_encode([
                 "message"   => "Login realizado com sucesso.",
@@ -146,7 +146,7 @@ class usuarioController
     }
 
 
-    // Verificar se o usuário tem permissão para editar ou excluir
+   
     public function verificarPermissao($id_usuario, $cargo_necessario)
     {
         try {
@@ -164,7 +164,7 @@ class usuarioController
     public function me()
     {
         try {
-            // Lê o Authorization de forma robusta (funciona em PHP embutido, Apache, Nginx etc.)
+            
             $headers = function_exists('getallheaders') ? getallheaders() : [];
             $auth = $headers['Authorization'] ?? $headers['authorization'] ?? ($_SERVER['HTTP_AUTHORIZATION'] ?? '');
             if (!preg_match('/^Bearer\s+(.+)$/i', $auth, $m)) {
@@ -175,7 +175,7 @@ class usuarioController
             $cfg = require __DIR__ . '/../../../config/jwt.php';
             $decoded = \Firebase\JWT\JWT::decode($m[1], new \Firebase\JWT\Key($cfg['secret'], 'HS256'));
 
-            // caminho do jwt.php (2 níveis acima de Controllers)
+            
             $cfg = require __DIR__ . '/../../../config/jwt.php';
             $decoded = \Firebase\JWT\JWT::decode($m[1], new \Firebase\JWT\Key($cfg['secret'], 'HS256'));
 
@@ -272,4 +272,70 @@ class usuarioController
             echo json_encode(['message' => 'Erro ao salvar alterações', 'detail' => $e->getMessage()]);
         }
     }
+
+    public function getAllUsers()
+{
+    try {
+        $rows = $this->usuario->getAllUsers();
+
+        $users = array_map(function($u){
+            return [
+                'id'          => (int)$u['id'],
+                'fullName'    => $u['nome'],
+                'email'       => $u['email'],
+                'cargo'       => $u['cargo'],
+                'ativo'       => 1, // não existe a coluna; por enquanto todo mundo ativo
+                'ultimoLogin' => null, // não existe a coluna
+                'criadoEm'    => $u['created_at'] ?? null,
+            ];
+        }, $rows);
+
+        echo json_encode($users);
+    } catch (\Throwable $e) {
+        http_response_code(500);
+        echo json_encode(['message' => 'Erro ao listar usuários', 'detail' => $e->getMessage()]);
+    }
+}
+
+       public function publicRegister()
+{
+    $data = json_decode(file_get_contents("php://input"));
+
+    if (!isset($data->nome, $data->email, $data->senha)) {
+        http_response_code(400);
+        echo json_encode(["message" => "Nome, email e senha são obrigatórios."]);
+        return;
+    }
+
+    $nome  = trim((string)$data->nome);
+    $email = trim((string)$data->email);
+    $senha = (string)$data->senha;
+
+    if (strlen($nome) < 2) { http_response_code(422); echo json_encode(["message"=>"Informe um nome válido."]); return; }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) { http_response_code(422); echo json_encode(["message"=>"Email inválido."]); return; }
+    if (strlen($senha) < 6) { http_response_code(422); echo json_encode(["message"=>"A senha deve ter ao menos 6 caracteres."]); return; }
+
+    try {
+        // primeiro usuário => gerente; demais => funcionário
+        $total = $this->usuario->countAll();
+        $cargo = $total === 0 ? 'gerente' : 'funcionario';
+
+        $ok = $this->usuario->create($nome, $email, $senha, $cargo);
+        if (!$ok) {
+            http_response_code(500);
+            echo json_encode(["message" => "Erro ao criar usuário."]);
+            return;
+        }
+
+        http_response_code(201);
+        echo json_encode([
+            "message" => "Cadastro realizado com sucesso.",
+            "cargo"   => $cargo
+        ]);
+    } catch (\Throwable $e) {
+        // duplicidade de email cai aqui geralmente
+        http_response_code(409);
+        echo json_encode(["message" => "Email já está em uso.", "detail" => $e->getMessage()]);
+    }
+}
 }
