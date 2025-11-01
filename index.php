@@ -114,7 +114,7 @@ $router->add("POST",  "/vaca",         $guard([$vacaController, 'create']));
 $router->add("GET",   "/vacas",      [$vacaController, 'findAll']);
 $router->add("GET",   "/vaca/{id}",  [$vacaController, 'findById']);
 $router->add("PUT",   "/vaca/{id}",    $guard([$vacaController, 'update']));
-$router->add("DELETE","/vaca/{id}",    $guard([$vacaController, 'delete'], ['gerente']));
+$router->add("DELETE","/vaca/{id}",    $guard([$vacaController, 'delete'], ['gerente','administrador']));
 
 
 // Leite
@@ -122,23 +122,21 @@ $router->add("POST",  "/leite",        $guard([$leiteController, 'create']));
 $router->add("PUT",   "/leite/{id}",   $guard([$leiteController, 'update'])); 
 $router->add("GET",    "/allleite",    [$leiteController, 'getAllLeites']);
 $router->add("GET",    "/leite/{id}",  [$leiteController, 'getById']);
-$router->add("DELETE","/leite/{id}",   $guard([$leiteController, 'delete'], ['gerente']));
+$router->add("DELETE","/leite/{id}",   $guard([$leiteController, 'delete'], ['gerente','administrador']));
   
 $router->add("POST",   "/somaleite",   [$leiteController, 'somarLeite']);
 
-
+ 
 // Usuário
-//$router->add("POST", "/usuario", [$usuarioController, 'create']);
-
 $router->add("POST", "/usuario", $guard([$usuarioController, 'create'], ['gerente','administrador']));
 $router->add("POST", "/register", [$usuarioController, 'publicRegister']);
-
 $router->add("POST", "/login", [$usuarioController, 'login']);
-
-$router->add("GET",   "/me",             $guard([$usuarioController, 'me']));
-$router->add("PATCH", "/usuario/{id}",   $guard([$usuarioController, 'updateBasic']));
-
+$router->add("GET",   "/me", $guard([$usuarioController, 'me']));
+$router->add("PATCH", "/usuario/{id}/perfil", $guard([$usuarioController, 'atualizarPerfil'], ['gerente','administrador','funcionario']));
+$router->add("PATCH", "/usuario/{id}", $guard([$usuarioController, 'updateBasic'], ['gerente','administrador']));
+$router->add("PATCH", "/usuario/{id}/ativo", $guard([\App\Controllers\usuarioController::class, 'toggleAtivo'], ['gerente','administrador']));
 $router->add("GET", "/usuarios", $guard([$usuarioController, 'getAllUsers']));
+$router->add("GET", "/usuario/{id}", [$usuarioController, 'getOne']);
 
 
 // Despesas
@@ -146,7 +144,7 @@ $router->add("POST",  "/despesa",      $guard([$despesaController, 'create']));
 $router->add("GET",    "/despesas",      [$despesaController, 'getAllDespesas']);
 $router->add("GET",    "/despesas/{id}", [$despesaController, 'getById']);
 $router->add("PUT",   "/despesa/{id}", $guard([$despesaController, 'update']));
-$router->add("DELETE","/despesa/{id}", $guard([$despesaController, 'delete'], ['gerente']));
+$router->add("DELETE","/despesa/{id}", $guard([$despesaController, 'delete'], ['gerente','administrador']));
 
 
 // Lucros
@@ -155,7 +153,7 @@ $router->add('GET',    '/lucros',        [$lucroController, 'getAll']);
 $router->add('GET',    '/lucro/{id}',    [$lucroController, 'getById']);
 $router->add('POST',  '/lucro',        $guard([$lucroController, 'create']));
 $router->add('PUT',   '/lucro/{id}',   $guard([$lucroController, 'update']));
-$router->add('DELETE','/lucro/{id}',   $guard([$lucroController, 'delete'], ['gerente']));
+$router->add('DELETE','/lucro/{id}',   $guard([$lucroController, 'delete'], ['gerente','administrador']));
 
 
 

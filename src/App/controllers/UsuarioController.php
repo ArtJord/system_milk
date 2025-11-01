@@ -7,9 +7,6 @@ use Exception;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
-
-
-
 class usuarioController
 {
     private $usuario;
@@ -75,10 +72,10 @@ class usuarioController
                 return;
             }
 
-            
+
             $cfg = require dirname(__DIR__, 3) . '/config/jwt.php';
 
-            //Monta o payload e assina o toke
+            //Monta o payload e assina o token
             $now = time();
             $payload = [
                 'iss'   => $cfg['issuer'],
@@ -102,7 +99,7 @@ class usuarioController
                 'telefone' => $usuario['telefone'] ?? null
             ];
 
-           
+
             http_response_code(200);
             echo json_encode([
                 "message"   => "Login realizado com sucesso.",
@@ -146,7 +143,7 @@ class usuarioController
     }
 
 
-   
+
     public function verificarPermissao($id_usuario, $cargo_necessario)
     {
         try {
@@ -162,48 +159,49 @@ class usuarioController
     }
 
     public function me()
-    {
-        try {
-            
-            $headers = function_exists('getallheaders') ? getallheaders() : [];
-            $auth = $headers['Authorization'] ?? $headers['authorization'] ?? ($_SERVER['HTTP_AUTHORIZATION'] ?? '');
-            if (!preg_match('/^Bearer\s+(.+)$/i', $auth, $m)) {
-                http_response_code(401);
-                echo json_encode(['message' => 'Token ausente']);
-                return;
-            }
-            $cfg = require __DIR__ . '/../../../config/jwt.php';
-            $decoded = \Firebase\JWT\JWT::decode($m[1], new \Firebase\JWT\Key($cfg['secret'], 'HS256'));
-
-            
-            $cfg = require __DIR__ . '/../../../config/jwt.php';
-            $decoded = \Firebase\JWT\JWT::decode($m[1], new \Firebase\JWT\Key($cfg['secret'], 'HS256'));
-
-            $id = (int)($decoded->sub ?? 0);
-            if ($id <= 0) {
-                http_response_code(401);
-                echo json_encode(['message' => 'Token inválido']);
-                return;
-            }
-
-            $u = $this->usuario->getById($id);
-            if (!$u) {
-                http_response_code(404);
-                echo json_encode(['message' => 'Usuário não encontrado']);
-                return;
-            }
-
-            echo json_encode([
-                'id'       => (int)$u['id'],
-                'fullName' => $u['nome'],
-                'email'    => $u['email'],
-                'cargo'    => $u['cargo'] ?? null,
-            ]);
-        } catch (\Throwable $e) {
-            http_response_code(500);
-            echo json_encode(['message' => 'Erro ao obter perfil', 'detail' => $e->getMessage()]);
+{
+    try {
+        $headers = function_exists('getallheaders') ? getallheaders() : [];
+        $auth = $headers['Authorization'] ?? $headers['authorization'] ?? ($_SERVER['HTTP_AUTHORIZATION'] ?? '');
+        if (!preg_match('/^Bearer\s+(.+)$/i', $auth, $m)) {
+            http_response_code(401);
+            echo json_encode(['message' => 'Token ausente']);
+            return;
         }
+
+        $cfg = require __DIR__ . '/../../../config/jwt.php';
+        $decoded = \Firebase\JWT\JWT::decode($m[1], new \Firebase\JWT\Key($cfg['secret'], 'HS256'));
+
+        $id = (int)($decoded->sub ?? 0);
+        if ($id <= 0) {
+            http_response_code(401);
+            echo json_encode(['message' => 'Token inválido']);
+            return;
+        }
+
+        $u = $this->usuario->getById($id);
+        if (!$u) {
+            http_response_code(404);
+            echo json_encode(['message' => 'Usuário não encontrado']);
+            return;
+        }
+
+        echo json_encode([
+            'id'       => (int)$u['id'],
+            'fullName' => $u['nome'],
+            'email'    => $u['email'],
+            'cargo'    => $u['cargo'] ?? null,
+            'telefone' => $u['telefone'] ?? null,
+            'endereco' => $u['endereco'] ?? null,
+            'cidade'   => $u['cidade'] ?? null,
+            'estado'   => $u['estado'] ?? null,
+            'cep'      => $u['cep'] ?? null,
+        ]);
+    } catch (\Throwable $e) {
+        http_response_code(500);
+        echo json_encode(['message' => 'Erro ao obter perfil', 'detail' => $e->getMessage()]);
     }
+}
 
     public function updateBasic($id)
     {
@@ -226,7 +224,7 @@ class usuarioController
             $fullName = isset($body->fullName) ? trim((string)$body->fullName) : $u['nome'];
             $email    = isset($body->email)    ? trim((string)$body->email)    : $u['email'];
 
-            // Se email mudou, checar duplicidade
+
             if (strcasecmp($email, $u['email']) !== 0) {
                 if ($this->usuario->emailExists($email)) {
                     http_response_code(409);
@@ -235,12 +233,12 @@ class usuarioController
                 }
             }
 
-            // Atualiza nome/email (se alterados)
+
             if ($fullName !== $u['nome'] || $email !== $u['email']) {
                 $this->usuario->updateBasic($id, $fullName, $email);
             }
 
-            // Se vier troca de senha, exige currentPassword e newPassword
+
             if (isset($body->currentPassword) || isset($body->newPassword)) {
                 $current = (string)($body->currentPassword ?? '');
                 $new     = (string)($body->newPassword     ?? '');
@@ -274,68 +272,227 @@ class usuarioController
     }
 
     public function getAllUsers()
-{
-    try {
-        $rows = $this->usuario->getAllUsers();
+    {
+        try {
+            $rows = $this->usuario->getAllUsers();
 
-        $users = array_map(function($u){
-            return [
-                'id'          => (int)$u['id'],
-                'fullName'    => $u['nome'],
-                'email'       => $u['email'],
-                'cargo'       => $u['cargo'],
-                'ativo'       => 1, // não existe a coluna; por enquanto todo mundo ativo
-                'ultimoLogin' => null, // não existe a coluna
-                'criadoEm'    => $u['created_at'] ?? null,
-            ];
-        }, $rows);
+            $users = array_map(function ($u) {
+                return [
+                    'id'          => (int)$u['id'],
+                    'fullName'    => $u['nome'],
+                    'email'       => $u['email'],
+                    'cargo'       => $u['cargo'],
+                    'ativo'       => 1, 
+                    'ultimoLogin' => null,
+                    'criadoEm'    => $u['created_at'] ?? null,
+                ];
+            }, $rows);
 
-        echo json_encode($users);
-    } catch (\Throwable $e) {
-        http_response_code(500);
-        echo json_encode(['message' => 'Erro ao listar usuários', 'detail' => $e->getMessage()]);
-    }
-}
-
-       public function publicRegister()
-{
-    $data = json_decode(file_get_contents("php://input"));
-
-    if (!isset($data->nome, $data->email, $data->senha)) {
-        http_response_code(400);
-        echo json_encode(["message" => "Nome, email e senha são obrigatórios."]);
-        return;
-    }
-
-    $nome  = trim((string)$data->nome);
-    $email = trim((string)$data->email);
-    $senha = (string)$data->senha;
-
-    if (strlen($nome) < 2) { http_response_code(422); echo json_encode(["message"=>"Informe um nome válido."]); return; }
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) { http_response_code(422); echo json_encode(["message"=>"Email inválido."]); return; }
-    if (strlen($senha) < 6) { http_response_code(422); echo json_encode(["message"=>"A senha deve ter ao menos 6 caracteres."]); return; }
-
-    try {
-        // primeiro usuário => gerente; demais => funcionário
-        $total = $this->usuario->countAll();
-        $cargo = $total === 0 ? 'gerente' : 'funcionario';
-
-        $ok = $this->usuario->create($nome, $email, $senha, $cargo);
-        if (!$ok) {
+            echo json_encode($users);
+        } catch (\Throwable $e) {
             http_response_code(500);
-            echo json_encode(["message" => "Erro ao criar usuário."]);
+            echo json_encode(['message' => 'Erro ao listar usuários', 'detail' => $e->getMessage()]);
+        }
+    }
+
+    public function publicRegister()
+    {
+        $data = json_decode(file_get_contents("php://input"));
+
+        if (!isset($data->nome, $data->email, $data->senha)) {
+            http_response_code(400);
+            echo json_encode(["message" => "Nome, email e senha são obrigatórios."]);
             return;
         }
 
-        http_response_code(201);
-        echo json_encode([
-            "message" => "Cadastro realizado com sucesso.",
-            "cargo"   => $cargo
-        ]);
+        $nome  = trim((string)$data->nome);
+        $email = trim((string)$data->email);
+        $senha = (string)$data->senha;
+
+        if (strlen($nome) < 2) {
+            http_response_code(422);
+            echo json_encode(["message" => "Informe um nome válido."]);
+            return;
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            http_response_code(422);
+            echo json_encode(["message" => "Email inválido."]);
+            return;
+        }
+        if (strlen($senha) < 6) {
+            http_response_code(422);
+            echo json_encode(["message" => "A senha deve ter ao menos 6 caracteres."]);
+            return;
+        }
+
+        try {
+
+            $total = $this->usuario->countAll();
+            $cargo = $total === 0 ? 'gerente' : 'funcionario';
+
+            $ok = $this->usuario->create($nome, $email, $senha, $cargo);
+            if (!$ok) {
+                http_response_code(500);
+                echo json_encode(["message" => "Erro ao criar usuário."]);
+                return;
+            }
+
+            http_response_code(201);
+            echo json_encode([
+                "message" => "Cadastro realizado com sucesso.",
+                "cargo"   => $cargo
+            ]);
+        } catch (\Throwable $e) {
+
+            http_response_code(409);
+            echo json_encode(["message" => "Email já está em uso.", "detail" => $e->getMessage()]);
+        }
+    }
+
+    public function update($id)
+    {
+        try {
+            $id = (int)$id;
+            $body = json_decode(file_get_contents('php://input'), true) ?: [];
+
+            if ($id <= 0) {
+                http_response_code(400);
+                echo json_encode(['message' => 'ID inválido']);
+                return;
+            }
+
+            // --- Auth via JWT (mesmo padrão do método me()) ---
+            $headers = function_exists('getallheaders') ? getallheaders() : [];
+            $auth = $headers['Authorization'] ?? $headers['authorization'] ?? ($_SERVER['HTTP_AUTHORIZATION'] ?? '');
+            if (!preg_match('/^Bearer\s+(.+)$/i', $auth, $m)) {
+                http_response_code(401);
+                echo json_encode(['message' => 'Token ausente']);
+                return;
+            }
+            $cfg = require __DIR__ . '/../../../config/jwt.php';
+            $decoded = JWT::decode($m[1], new Key($cfg['secret'], 'HS256'));
+
+            $meId   = (int)($decoded->sub ?? 0);
+            $meRole = strtolower($decoded->cargo ?? 'usuario');
+            $isManager = in_array($meRole, ['gerente', 'administrador'], true);
+
+            if ($meId <= 0) {
+                http_response_code(401);
+                echo json_encode(['message' => 'Token inválido']);
+                return;
+            }
+
+
+            $querAlterarPoder = array_key_exists('cargo', $body) || array_key_exists('ativo', $body);
+            if ($querAlterarPoder && !$isManager) {
+                http_response_code(403);
+                echo json_encode(['message' => 'Sem permissão para alterar cargo/status.']);
+                return;
+            }
+
+
+            if ($meId === $id && isset($body['cargo']) && strtolower($body['cargo']) === 'funcionario' && $isManager) {
+                http_response_code(400);
+                echo json_encode(['message' => 'Você não pode rebaixar o próprio cargo para "funcionário".']);
+                return;
+            }
+
+
+            $ok = $this->usuario->update($id, $body);
+            if (!$ok) {
+                http_response_code(400);
+                echo json_encode(['message' => 'Nenhum campo válido foi enviado.']);
+                return;
+            }
+
+            echo json_encode(['ok' => true]);
+        } catch (\RuntimeException $e) {
+            http_response_code(409);
+            echo json_encode(['message' => $e->getMessage()]);
+        } catch (\Throwable $e) {
+            http_response_code(500);
+            echo json_encode(['message' => 'Erro ao atualizar', 'detail' => $e->getMessage()]);
+        }
+    }
+
+    public function getOne($id)
+{
+    try {
+        $id = (int)$id;
+        if ($id <= 0) {
+            http_response_code(400);
+            echo json_encode(['message' => 'ID inválido']);
+            return;
+        }
+        $u = $this->usuario->getById($id); 
+        if (!$u) {
+            http_response_code(404);
+            echo json_encode(['message' => 'Usuário não encontrado']);
+            return;
+        }
+        echo json_encode($u);
     } catch (\Throwable $e) {
-        // duplicidade de email cai aqui geralmente
-        http_response_code(409);
-        echo json_encode(["message" => "Email já está em uso.", "detail" => $e->getMessage()]);
+        http_response_code(500);
+        echo json_encode(['message' => 'Erro ao obter usuário', 'detail' => $e->getMessage()]);
+    }
+}
+
+
+    public function toggleAtivo($id)
+{
+    try {
+        $body = json_decode(file_get_contents('php://input'));
+        $novo = isset($body->ativo) ? (int)$body->ativo : null;
+
+        if ($novo !== 0 && $novo !== 1) {
+            http_response_code(400);
+            echo json_encode(['message' => 'Valor inválido para ativo. Use 0 ou 1.']);
+            return;
+        }
+
+        // autenticação via token
+        $headers = function_exists('getallheaders') ? getallheaders() : [];
+        $auth = $headers['Authorization'] ?? $headers['authorization'] ?? ($_SERVER['HTTP_AUTHORIZATION'] ?? '');
+        if (!preg_match('/^Bearer\s+(.+)$/i', $auth, $m)) {
+            http_response_code(401);
+            echo json_encode(['message' => 'Token ausente']);
+            return;
+        }
+
+        $cfg = require __DIR__ . '/../../../config/jwt.php';
+        $decoded = JWT::decode($m[1], new Key($cfg['secret'], 'HS256'));
+
+        $meId   = (int)($decoded->sub ?? 0);
+        $meRole = strtolower($decoded->cargo ?? 'usuario');
+        $isManager = in_array($meRole, ['gerente', 'administrador'], true);
+
+        if (!$isManager) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Sem permissão.']);
+            return;
+        }
+
+        // não pode se auto-desativar
+        if ($meId === (int)$id && $novo === 0) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Você não pode desativar a própria conta.']);
+            return;
+        }
+
+        $ok = $this->usuario->update($id, ['ativo' => $novo]);
+        if (!$ok) {
+            http_response_code(404);
+            echo json_encode(['message' => 'Usuário não encontrado ou falha ao atualizar.']);
+            return;
+        }
+
+        echo json_encode(['message' => 'Status atualizado com sucesso.', 'ativo' => $novo]);
+    } catch (\Throwable $e) {
+        http_response_code(500);
+        echo json_encode([
+            'message' => 'Erro ao atualizar status',
+            'detail'  => $e->getMessage()
+        ]);
     }
 }
 }

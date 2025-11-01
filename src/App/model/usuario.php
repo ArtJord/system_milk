@@ -39,7 +39,7 @@ class usuario
         ]);
     }
 
-    // Login com verificação de senha
+
     public function login($email, $senha)
     {
         $stmt = $this->pdo->prepare("SELECT * FROM usuarios WHERE email = ?");
@@ -53,7 +53,7 @@ class usuario
         return false;
     }
 
-    // Verifica se o usuário tem o cargo necessário
+
     public function verificarCargo($id, $cargo_necessario)
     {
         $stmt = $this->pdo->prepare("SELECT cargo FROM usuarios WHERE id = ?");
@@ -64,7 +64,7 @@ class usuario
         return $usuario && $usuario['cargo'] === $cargo_necessario;
     }
 
-    // Buscar dados de perfil
+    
     public function findById($id)
     {
         $stmt = $this->pdo->prepare("
@@ -96,11 +96,16 @@ class usuario
     }
 
     public function getById(int $id): array|null
-    {
-        $st = $this->pdo->prepare("SELECT id, nome, email, cargo, senha FROM usuarios WHERE id = ?");
-        $st->execute([$id]);
-        return $st->fetch(PDO::FETCH_ASSOC) ?: null;
-    }
+{
+    $st = $this->pdo->prepare("
+        SELECT id, nome, email, cargo, 
+               telefone, endereco, cidade, estado, cep
+        FROM usuarios
+        WHERE id = ?
+    ");
+    $st->execute([$id]);
+    return $st->fetch(PDO::FETCH_ASSOC) ?: null;
+}
 
     public function emailExists(string $email, ?int $ignoreId = null): bool
     {
@@ -151,4 +156,58 @@ public function countAll(): int
     $st = $this->pdo->query("SELECT COUNT(*) FROM usuarios");
     return (int)$st->fetchColumn();
 }
+
+public function update(int $id, array $campos): bool
+{
+    if ($id <= 0) {
+        throw new \InvalidArgumentException("ID inválido");
+    }
+
+    // Whitelist dos campos que podem ser atualizados
+    $permitidos = [
+        'nome', 'email', 'telefone', 'endereco', 'cidade', 'estado', 'cep',
+        'cargo', 'ativo'
+    ];
+
+    $sets = [];
+    $params = [':id' => $id];
+
+    foreach ($campos as $coluna => $valor) {
+        if (!in_array($coluna, $permitidos, true)) {
+            continue;
+        }
+
+        // Normalizações básicas
+        if ($coluna === 'estado' && $valor !== null) {
+            $valor = strtoupper(preg_replace('/[^A-Za-z]/', '', (string)$valor));
+            $valor = substr($valor, 0, 2);
+        }
+        if ($coluna === 'ativo') {
+            $valor = (int)!empty($valor);
+        }
+        if ($coluna === 'cargo' && $valor !== null) {
+            $valor = strtolower((string)$valor);
+            if (!in_array($valor, ['gerente','administrador','funcionario'], true)) {
+                throw new \RuntimeException("Cargo inválido.");
+            }
+        }
+        if ($coluna === 'email' && $valor !== null) {
+            if ($this->emailExists((string)$valor, $id)) {
+                throw new \RuntimeException("Email já está em uso.");
+            }
+        }
+
+        $sets[] = "{$coluna} = :{$coluna}";
+        $params[":{$coluna}"] = $valor;
+    }
+
+    if (empty($sets)) {
+        return false; 
+    }
+
+    $sql = "UPDATE usuarios SET " . implode(', ', $sets) . " WHERE id = :id";
+    $st  = $this->pdo->prepare($sql);
+    return $st->execute($params);
+}
+
 }
