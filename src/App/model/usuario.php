@@ -66,15 +66,15 @@ class usuario
 
     
     public function findById($id)
-    {
-        $stmt = $this->pdo->prepare("
-            SELECT id, nome, email, cargo, telefone, endereco, cidade, estado, cep
-            FROM usuarios
-            WHERE id = ?
-        ");
-        $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
+{
+    $stmt = $this->pdo->prepare("
+        SELECT id, nome, email, cargo, telefone, endereco, cidade, estado, cep, ativo
+        FROM usuarios
+        WHERE id = ?
+    ");
+    $stmt->execute([$id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
 
     
     public function atualizarPerfil($id, $telefone = null, $endereco = null, $cidade = null, $estado = null, $cep = null)
@@ -95,16 +95,15 @@ class usuario
         ]);
     }
 
-    public function getById(int $id): array|null
+  public function getById(int $id): ?array
 {
     $st = $this->pdo->prepare("
-        SELECT id, nome, email, cargo, 
-               telefone, endereco, cidade, estado, cep
+        SELECT id, nome, email, cargo, telefone, endereco, cidade, estado, cep, ativo
         FROM usuarios
         WHERE id = ?
     ");
     $st->execute([$id]);
-    return $st->fetch(PDO::FETCH_ASSOC) ?: null;
+    return $st->fetch(\PDO::FETCH_ASSOC) ?: null;
 }
 
     public function emailExists(string $email, ?int $ignoreId = null): bool
@@ -141,14 +140,13 @@ class usuario
 
     public function getAllUsers(): array
 {
-    
     $st = $this->pdo->prepare("
-        SELECT id, nome, email, cargo, created_at
+        SELECT id, nome, email, cargo, ativo, ultimo_login, created_at
         FROM usuarios
         ORDER BY nome ASC
     ");
     $st->execute();
-    return $st->fetchAll(PDO::FETCH_ASSOC);
+    return $st->fetchAll(\PDO::FETCH_ASSOC);
 }
 
 public function countAll(): int
@@ -208,6 +206,14 @@ public function update(int $id, array $campos): bool
     $sql = "UPDATE usuarios SET " . implode(', ', $sets) . " WHERE id = :id";
     $st  = $this->pdo->prepare($sql);
     return $st->execute($params);
+}
+
+public function findByIdWithSenha(int $id): ?array {
+    $sql = "SELECT id, nome, email, cargo, senha, ativo FROM usuarios WHERE id = :id LIMIT 1";
+    $st  = $this->pdo->prepare($sql); 
+    $st->execute([':id' => $id]);
+    $u = $st->fetch(PDO::FETCH_ASSOC);
+    return $u ?: null;
 }
 
 }
