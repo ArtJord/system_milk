@@ -59,10 +59,21 @@ class VacaController
         }
 
     } catch (\Throwable $e) {
-        http_response_code(500);
-        echo json_encode(["message" => "Erro: " . $e->getMessage()]);
-        exit;
+        $msg = $e->getMessage();
+
+    if (str_contains($msg, 'valor é muito longo')) {
+        $userMsg = "Algum campo ultrapassou o limite permitido. Verifique o tamanho dos textos e tente novamente.";
+    } elseif (str_contains($msg, 'violates not-null constraint')) {
+        $userMsg = "Há campos obrigatórios não preenchidos. Preencha todos os campos marcados e tente novamente.";
+    } elseif (str_contains($msg, 'invalid input syntax')) {
+        $userMsg = "Um ou mais campos contêm dados inválidos. Corrija e tente novamente.";
+    } else {
+        $userMsg = "Ocorreu um erro inesperado ao salvar. Tente novamente mais tarde.";
     }
+
+    http_response_code(400);
+    echo json_encode(["message" => $userMsg]);
+}
 }
 
 
