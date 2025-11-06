@@ -699,4 +699,71 @@ public function updateSelfPassword()
 
     echo json_encode(['success' => true, 'ativo' => $novoAtivo], JSON_UNESCAPED_UNICODE);
 }
+
+// src/App/controllers/UsuarioController.php
+
+public function setPasswordForUser($id)
+{
+    try {
+        // --- Auth básica (igual às outras ações protegidas) ---
+        $headers = function_exists('getallheaders') ? getallheaders() : [];
+        $auth = $headers['Authorization'] ?? $headers['authorization'] ?? ($_SERVER['HTTP_AUTHORIZATION'] ?? '');
+        if (!preg_match('/^Bearer\s+(.+)$/i', $auth, $m)) {
+            http_response_code(401);
+            echo json_encode(['message' => 'Token ausente']);
+            return;
+        }
+        $cfg = require __DIR__ . '/../../../config/jwt.php';
+        $decoded = \Firebase\JWT\JWT::decode($m[1], new \Firebase\JWT\Key($cfg['secret'], 'HS256'));
+        $meRole = strtolower($decoded->cargo ?? $decoded->role ?? '');
+
+        if (!in_array($meRole, ['gerente', 'administrador'], true)) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Sem permissão']);
+            return;
+        }
+
+        // --- ID ---
+        $id = (int)$id;
+        if ($id <= 0) {
+            http_response_code(400);
+            echo json_encode(['message' => 'ID inválido']);
+            return;
+        }
+
+        // --- Body ---
+        $body = json_decode(file_get_contents('php://input'), true) ?: [];
+        $new = (string)($body['newPassword'] ?? $body['senha'] ?? '');
+        if (strlen($new) < 6) {
+            http_response_code(422);
+            echo json_encode(['message' => 'A nova senha deve ter ao menos 6 caracteres.']);
+            return;
+        }
+
+        // --- Usuário existe? ---
+        $u = $this->usuario->getById($id);
+        if (!$u) {
+            http_response_code(404);
+            echo json_encode(['message' => 'Usuário não encontrado']);
+            return;
+        }
+
+        // --- Atualiza senha ---
+        $hash = password_hash($new, PASSWORD_DEFAULT);
+        $ok = $this->usuario->updateSenha($id, $hash);
+        if (!$ok) {
+            http_response_code(500);
+            echo json_encode(['message' => 'Falha ao atualizar senha.']);
+            return;
+        }
+
+        echo json_encode(['message' => 'Senha definida com sucesso.']);
+    } catch (\Throwable $e) {
+        http_response_code(500);
+        echo json_encode(['message' => 'Erro ao definir senha', 'detail' => $e->getMessage()]);
+    }
+}
+
+
+
 }
