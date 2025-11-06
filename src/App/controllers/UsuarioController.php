@@ -206,6 +206,121 @@ class usuarioController
         }
     }
 
+    public function updateSelf()
+{
+    try {
+        // Auth (mesmo padrão do me())
+        $headers = function_exists('getallheaders') ? getallheaders() : [];
+        $auth = $headers['Authorization'] ?? $headers['authorization'] ?? ($_SERVER['HTTP_AUTHORIZATION'] ?? '');
+        if (!preg_match('/^Bearer\s+(.+)$/i', $auth, $m)) {
+            http_response_code(401);
+            echo json_encode(['message' => 'Token ausente']);
+            return;
+        }
+        $cfg = require __DIR__ . '/../../../config/jwt.php';
+        $decoded = \Firebase\JWT\JWT::decode($m[1], new \Firebase\JWT\Key($cfg['secret'], 'HS256'));
+        $id = (int)($decoded->sub ?? 0);
+        if ($id <= 0) {
+            http_response_code(401);
+            echo json_encode(['message' => 'Token inválido']);
+            return;
+        }
+
+        $body = json_decode(file_get_contents('php://input'), true) ?: [];
+        $fullName = trim($body['fullName'] ?? '');
+        $email    = trim($body['email'] ?? '');
+
+        if ($fullName === '' || $email === '') {
+            http_response_code(400);
+            echo json_encode(['message' => 'Nome e email são obrigatórios.']);
+            return;
+        }
+
+        // Evita colisão de email
+        $u = $this->usuario->getById($id);
+        if (!$u) {
+            http_response_code(404);
+            echo json_encode(['message' => 'Usuário não encontrado']);
+            return;
+        }
+        if (strcasecmp($email, $u['email']) !== 0 && $this->usuario->emailExists($email)) {
+            http_response_code(409);
+            echo json_encode(['message' => 'Email já está em uso.']);
+            return;
+        }
+
+        $this->usuario->updateBasic($id, $fullName, $email);
+
+        $updated = $this->usuario->getById($id);
+        echo json_encode([
+            'id'       => (int)$updated['id'],
+            'fullName' => $updated['nome'],
+            'email'    => $updated['email'],
+        ]);
+    } catch (\Throwable $e) {
+        http_response_code(500);
+        echo json_encode(['message' => 'Erro ao atualizar perfil', 'detail' => $e->getMessage()]);
+    }
+}
+
+public function updateSelfPassword()
+{
+    try {
+        // Auth
+        $headers = function_exists('getallheaders') ? getallheaders() : [];
+        $auth = $headers['Authorization'] ?? $headers['authorization'] ?? ($_SERVER['HTTP_AUTHORIZATION'] ?? '');
+        if (!preg_match('/^Bearer\s+(.+)$/i', $auth, $m)) {
+            http_response_code(401);
+            echo json_encode(['message' => 'Token ausente']);
+            return;
+        }
+        $cfg = require __DIR__ . '/../../../config/jwt.php';
+        $decoded = \Firebase\JWT\JWT::decode($m[1], new \Firebase\JWT\Key($cfg['secret'], 'HS256'));
+        $id = (int)($decoded->sub ?? 0);
+        if ($id <= 0) {
+            http_response_code(401);
+            echo json_encode(['message' => 'Token inválido']);
+            return;
+        }
+
+        $body = json_decode(file_get_contents('php://input'), true) ?: [];
+        $current = (string)($body['currentPassword'] ?? '');
+        $next    = (string)($body['newPassword'] ?? '');
+
+        if ($current === '' || $next === '') {
+            http_response_code(400);
+            echo json_encode(['message' => 'Senha atual e nova senha são obrigatórias.']);
+            return;
+        }
+        if (strlen($next) < 6) {
+            http_response_code(422);
+            echo json_encode(['message' => 'A nova senha deve ter ao menos 6 caracteres.']);
+            return;
+        }
+
+        $u = $this->usuario->getByIdWithPassword($id);
+        if (!$u) {
+            http_response_code(404);
+            echo json_encode(['message' => 'Usuário não encontrado']);
+            return;
+        }
+        if (!password_verify($current, $u['senha'])) {
+            http_response_code(400);
+            echo json_encode(['message' => 'Senha atual incorreta.']);
+            return;
+        }
+
+        $hash = password_hash($next, PASSWORD_DEFAULT);
+        $this->usuario->updateSenha($id, $hash);
+
+        echo json_encode(['message' => 'Senha alterada com sucesso.']);
+    } catch (\Throwable $e) {
+        http_response_code(500);
+        echo json_encode(['message' => 'Erro ao alterar senha', 'detail' => $e->getMessage()]);
+    }
+}
+
+
     public function updateBasic($id)
     {
         try {

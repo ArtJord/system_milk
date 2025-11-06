@@ -119,10 +119,10 @@ class usuario
     }
 
     public function updateBasic(int $id, string $nome, string $email): bool
-    {
-        $st = $this->pdo->prepare("UPDATE usuarios SET nome = ?, email = ? WHERE id = ?");
-        return $st->execute([$nome, $email, $id]);
-    }
+{
+    $st = $this->pdo->prepare("UPDATE usuarios SET nome = :n, email = :e WHERE id = :id");
+    return $st->execute([':n' => $nome, ':e' => $email, ':id' => $id]);
+}
 
     public function checkPassword(int $id, string $plain): bool
     {
@@ -215,5 +215,23 @@ public function findByIdWithSenha(int $id): ?array {
     $u = $st->fetch(PDO::FETCH_ASSOC);
     return $u ?: null;
 }
+
+public function getByIdWithPassword(int $id): array|null
+{
+    $st = $this->pdo->prepare("
+        SELECT id, nome, email, cargo, senha
+        FROM usuarios
+        WHERE id = ?
+    ");
+    $st->execute([$id]);
+    return $st->fetch(PDO::FETCH_ASSOC) ?: null;
+}
+
+public function updateSenha(int $id, string $hash): bool
+{
+    $st = $this->pdo->prepare("UPDATE usuarios SET senha = :s WHERE id = :id");
+    return $st->execute([':s' => $hash, ':id' => $id]);
+}
+
 
 }

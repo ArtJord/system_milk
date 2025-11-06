@@ -44,6 +44,7 @@ use Firebase\JWT\Key;
 
 
 function authOrFail(array $roles = null) {
+    
     $headers = function_exists('getallheaders') ? getallheaders() : [];
     $auth = $headers['Authorization'] ?? $headers['authorization'] ?? '';
 
@@ -57,40 +58,14 @@ function authOrFail(array $roles = null) {
     $cfg = require __DIR__ . '/config/jwt.php';
 
     try {
-        $decoded = \Firebase\JWT\JWT::decode($jwt, new \Firebase\JWT\Key($cfg['secret'], 'HS256'));
-    } catch (\Throwable $e) {
+        $decoded = JWT::decode($jwt, new Key($cfg['secret'], 'HS256'));
+    } catch (Throwable $e) {
         http_response_code(401);
         echo json_encode(['message' => 'Token inválido ou expirado', 'detail' => $e->getMessage()]);
         exit;
     }
 
-    $userId = isset($decoded->sub) ? (int)$decoded->sub : 0;
-    if ($userId <= 0) {
-        http_response_code(401);
-        echo json_encode(['message' => 'Token sem usuário']);
-        exit;
-    }
-
-    // Verifica no banco se o usuário ainda está ativo
-    global $pdo; // usa a conexão já criada no início do arquivo
-    $st = $pdo->prepare("SELECT id, email, cargo, ativo FROM usuarios WHERE id = ? LIMIT 1");
-    $st->execute([$userId]);
-    $dbUser = $st->fetch(PDO::FETCH_ASSOC);
-
-    if (!$dbUser) {
-        http_response_code(401);
-        echo json_encode(['message' => 'Usuário não encontrado']);
-        exit;
-    }
-    if ((int)$dbUser['ativo'] !== 1) {
-        http_response_code(401);
-        echo json_encode(['message' => 'Sessão inválida: usuário desativado.']);
-        exit;
-    }
-
-    //  usa o cargo do BANCO (não o do token)
-    $cargo = strtolower($dbUser['cargo'] ?? 'atendente');
-
+    $cargo = $decoded->cargo ?? 'atendente';
     if ($roles && !in_array($cargo, $roles, true)) {
         http_response_code(403);
         echo json_encode(['message' => 'Acesso negado para o cargo atual']);
@@ -98,9 +73,9 @@ function authOrFail(array $roles = null) {
     }
 
     return [
-        'id'    => $dbUser['id'],
-        'email' => $dbUser['email'] ?? ($decoded->email ?? null),
-        'cargo' => $cargo,
+        'id'    => $decoded->sub ?? null,
+        'email' => $decoded->email ?? null,
+        'cargo' => $cargo
     ];
 }
 
@@ -159,12 +134,12 @@ $router->add("POST", "/login", [$usuarioController, 'login']);
 $router->add("GET",   "/me", $guard([$usuarioController, 'me']));
 $router->add("PATCH", "/usuario/{id}/perfil", $guard([$usuarioController, 'atualizarPerfil'], ['gerente','administrador','funcionario']));
 $router->add("PATCH", "/usuario/{id}", $guard([$usuarioController, 'updateBasic'], ['gerente','administrador']));
+$router->add("PATCH", "/usuario/{id}/ativo", $guard([\App\Controllers\usuarioController::class, 'toggleAtivo'], ['gerente','administrador']));
 $router->add("GET", "/usuarios", $guard([$usuarioController, 'getAllUsers']));
 $router->add("GET", "/usuario/{id}", [$usuarioController, 'getOne']);
 
-// Alterar status (ativar/desativar) com confirmação de senha do usuário logado
-$router->add("PATCH", "/usuario/{id}/ativo", $guard([$usuarioController, 'alterarStatus'], ['gerente','administrador']));
-
+$router->add("PATCH", "/me", $guard([$usuarioController, 'updateSelf'], ['gerente','administrador','funcionario']));
+$router->add("PATCH", "/me/password", $guard([$usuarioController, 'updateSelfPassword'], ['gerente','administrador','funcionario']));
 
 // Despesas
 $router->add("POST",  "/despesa",      $guard([$despesaController, 'create']));
