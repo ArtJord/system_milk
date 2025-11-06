@@ -133,7 +133,7 @@ $router->add("POST", "/register", [$usuarioController, 'publicRegister']);
 $router->add("POST", "/login", [$usuarioController, 'login']);
 $router->add("GET",   "/me", $guard([$usuarioController, 'me']));
 $router->add("PATCH", "/usuario/{id}/perfil", $guard([$usuarioController, 'atualizarPerfil'], ['gerente','administrador','funcionario']));
-$router->add("PATCH", "/usuario/{id}", $guard([$usuarioController, 'updateBasic'], ['gerente','administrador']));
+$router->add("PATCH", "/usuario/{id}", $guard([$usuarioController, 'update'], ['gerente','administrador']));
 $router->add("PATCH", "/usuario/{id}/ativo", $guard([\App\Controllers\usuarioController::class, 'toggleAtivo'], ['gerente','administrador']));
 $router->add("GET", "/usuarios", $guard([$usuarioController, 'getAllUsers']));
 $router->add("GET", "/usuario/{id}", [$usuarioController, 'getOne']);
