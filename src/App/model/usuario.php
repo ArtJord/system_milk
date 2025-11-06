@@ -66,15 +66,15 @@ class usuario
 
     
     public function findById($id)
-    {
-        $stmt = $this->pdo->prepare("
-            SELECT id, nome, email, cargo, telefone, endereco, cidade, estado, cep
-            FROM usuarios
-            WHERE id = ?
-        ");
-        $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
+{
+    $stmt = $this->pdo->prepare("
+        SELECT id, nome, email, cargo, telefone, endereco, cidade, estado, cep, ativo
+        FROM usuarios
+        WHERE id = ?
+    ");
+    $stmt->execute([$id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
 
     
     public function atualizarPerfil($id, $telefone = null, $endereco = null, $cidade = null, $estado = null, $cep = null)
@@ -95,16 +95,15 @@ class usuario
         ]);
     }
 
-    public function getById(int $id): array|null
+  public function getById(int $id): ?array
 {
     $st = $this->pdo->prepare("
-        SELECT id, nome, email, cargo, 
-               telefone, endereco, cidade, estado, cep
+        SELECT id, nome, email, cargo, telefone, endereco, cidade, estado, cep, ativo
         FROM usuarios
         WHERE id = ?
     ");
     $st->execute([$id]);
-    return $st->fetch(PDO::FETCH_ASSOC) ?: null;
+    return $st->fetch(\PDO::FETCH_ASSOC) ?: null;
 }
 
     public function emailExists(string $email, ?int $ignoreId = null): bool
@@ -120,10 +119,10 @@ class usuario
     }
 
     public function updateBasic(int $id, string $nome, string $email): bool
-    {
-        $st = $this->pdo->prepare("UPDATE usuarios SET nome = ?, email = ? WHERE id = ?");
-        return $st->execute([$nome, $email, $id]);
-    }
+{
+    $st = $this->pdo->prepare("UPDATE usuarios SET nome = :n, email = :e WHERE id = :id");
+    return $st->execute([':n' => $nome, ':e' => $email, ':id' => $id]);
+}
 
     public function checkPassword(int $id, string $plain): bool
     {
@@ -141,14 +140,13 @@ class usuario
 
     public function getAllUsers(): array
 {
-    
     $st = $this->pdo->prepare("
-        SELECT id, nome, email, cargo, created_at
+        SELECT id, nome, email, cargo, ativo, ultimo_login, created_at
         FROM usuarios
         ORDER BY nome ASC
     ");
     $st->execute();
-    return $st->fetchAll(PDO::FETCH_ASSOC);
+    return $st->fetchAll(\PDO::FETCH_ASSOC);
 }
 
 public function countAll(): int
@@ -209,5 +207,31 @@ public function update(int $id, array $campos): bool
     $st  = $this->pdo->prepare($sql);
     return $st->execute($params);
 }
+
+public function findByIdWithSenha(int $id): ?array {
+    $sql = "SELECT id, nome, email, cargo, senha, ativo FROM usuarios WHERE id = :id LIMIT 1";
+    $st  = $this->pdo->prepare($sql); 
+    $st->execute([':id' => $id]);
+    $u = $st->fetch(PDO::FETCH_ASSOC);
+    return $u ?: null;
+}
+
+public function getByIdWithPassword(int $id): array|null
+{
+    $st = $this->pdo->prepare("
+        SELECT id, nome, email, cargo, senha
+        FROM usuarios
+        WHERE id = ?
+    ");
+    $st->execute([$id]);
+    return $st->fetch(PDO::FETCH_ASSOC) ?: null;
+}
+
+public function updateSenha(int $id, string $hash): bool
+{
+    $st = $this->pdo->prepare("UPDATE usuarios SET senha = :s WHERE id = :id");
+    return $st->execute([':s' => $hash, ':id' => $id]);
+}
+
 
 }
