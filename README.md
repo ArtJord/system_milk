@@ -1,11 +1,11 @@
-# 🐄 System Milk — Backend (API REST em PHP)
+# 🐄 Leiteria Milk Bom — Backend (API REST em PHP)
 
 [![PHP](https://img.shields.io/badge/PHP-8.2-blue)]()
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13+-blue)]()
 [![Tests](https://img.shields.io/badge/Tests-PHPUnit-success)]()
 [![Status](https://img.shields.io/badge/Status-Ativo-brightgreen)]()
 
-API REST desenvolvida para o **System Milk**, uma plataforma de gestão de leiteria com controle de produção, animais e financeiro.  
+API REST desenvolvida para o **Leiteria Milk Bom**, uma plataforma de gestão de leiteria com controle de produção, animais e financeiro.  
 Este repositório contém **apenas o backend** — o frontend Vue 3 está em outro repositório.
 
 ---
