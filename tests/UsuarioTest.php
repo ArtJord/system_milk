@@ -9,21 +9,26 @@ class UsuarioTest extends TestCase
     private $usuario;
 
     protected function setUp(): void
-    {
-        // Simula um PDO usando SQLite em memória (não afeta seu banco real)
-        $this->pdo = new PDO('sqlite::memory:');
-        $this->pdo->exec("
-            CREATE TABLE usuarios (
-                id INTEGER PRIMARY KEY,
-                nome TEXT,
-                email TEXT,
-                senha TEXT,
-                cargo TEXT
-            )
-        ");
+{
+    
+    $this->pdo = new PDO('sqlite::memory:');
+    $this->pdo->exec("
+        CREATE TABLE usuarios (
+            id INTEGER PRIMARY KEY,
+            nome TEXT,
+            email TEXT,
+            senha TEXT,
+            cargo TEXT,
+            telefone TEXT,
+            endereco TEXT,
+            cidade TEXT,
+            estado TEXT,
+            cep TEXT
+        )
+    ");
 
-        $this->usuario = new usuario($this->pdo);
-    }
+    $this->usuario = new usuario($this->pdo);
+}
 
     public function testCreateUsuario()
     {

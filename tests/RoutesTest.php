@@ -1,11 +1,12 @@
 <?php
+
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/../Routes.php';
 
 class RoutesTest extends TestCase
 {
-    private $routes;
+    private Routes $routes;
 
     protected function setUp(): void
     {
@@ -14,16 +15,18 @@ class RoutesTest extends TestCase
 
     public function testRotaGet()
     {
-        // Define o método HTTP simulado
         $_SERVER['REQUEST_METHOD'] = 'GET';
 
-        $this->routes->add('GET', '/usuario/{id}', function ($id) {
-            return "Usuário com ID: $id";
+        $this->routes->add('GET', '/usuario/{id}', function (string $id) {
+            echo "Usuário com ID: $id";
         });
 
-        $response = $this->routes->dispatch('/usuario/15');
 
-        $this->assertEquals("Usuário com ID: 15", $response);
+        ob_start();
+        $this->routes->dispatch('GET', '/usuario/15');
+        $output = ob_get_clean();
+
+        $this->assertSame('Usuário com ID: 15', $output);
     }
 
     public function testRotaPost()
@@ -31,27 +34,27 @@ class RoutesTest extends TestCase
         $_SERVER['REQUEST_METHOD'] = 'POST';
 
         $this->routes->add('POST', '/usuario', function () {
-            return "Usuário criado!";
+            echo 'Usuário criado!';
         });
 
-        $response = $this->routes->dispatch('/usuario');
+        ob_start();
+        $this->routes->dispatch('POST', '/usuario');
+        $output = ob_get_clean();
 
-        $this->assertEquals("Usuário criado!", $response);
+        $this->assertSame('Usuário criado!', $output);
     }
 
     public function testRotaInexistente()
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
 
-        $this->routes->add('GET', '/teste', function () {
-            return "Ok";
-        });
-
-        // Captura a saída (echo) da dispatch para rota não encontrada
         ob_start();
-        $this->routes->dispatch('/rota-nao-existe');
+        $this->routes->dispatch('GET', '/rota-nao-existe');
         $output = ob_get_clean();
+        
+        $data = json_decode($output, true);
 
-        $this->assertStringContainsString("404 - Página não encontrada", $output);
+        $this->assertIsArray($data);
+        $this->assertSame('404 - Página não encontrada', $data['message'] ?? null);
     }
 }
