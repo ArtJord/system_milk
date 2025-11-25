@@ -1,114 +1,175 @@
-# 🐄 System Milk — Gestão de Leiteria
+# 🐄 System Milk — Backend (API REST em PHP)
 
-> Plataforma web para controle de produção de leite, cadastros de animais e gestão financeira (lucros e despesas).  
-> Desenvolvido em **Vue 3 + Vite** (frontend), **PHP 8** (backend) e **PostgreSQL** (banco de dados).
+[![PHP](https://img.shields.io/badge/PHP-8.2-blue)]()
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13+-blue)]()
+[![Tests](https://img.shields.io/badge/Tests-PHPUnit-success)]()
+[![Status](https://img.shields.io/badge/Status-Ativo-brightgreen)]()
 
----
-
-## 🧭 Visão Geral
-
-O **System Milk** centraliza as rotinas de uma leiteria em módulos simples e práticos:
-
-- **Produção de Leite**: registro diário por data/turno, litros, qualidade, equipamento e armazenamento.
-- **Animais**: base de vacas/identificação para vincular contribuintes da produção.
-- **Financeiro**:
-  - **Lucros**: receitas por categoria (venda de leite, animais, serviços etc.), com método/status de pagamento, NF-e e vencimentos.
-  - **Despesas**: classificação por categoria/subcategoria, prioridade e fluxo de pagamento.
-- **Filtros e busca**: por período, categoria e texto livre.
-- **UX aprimorada**: componentes modernos, toasts de feedback e modais de criação/edição.
+API REST desenvolvida para o **System Milk**, uma plataforma de gestão de leiteria com controle de produção, animais e financeiro.  
+Este repositório contém **apenas o backend** — o frontend Vue 3 está em outro repositório.
 
 ---
 
-## ⚙️ Stack Principal
+## 🚀 Visão Geral
 
-| Camada | Tecnologia |
-|--------|-------------|
-| **Frontend** | Vue 3 (Composition API), Vite, TailwindCSS, Axios |
-| **Backend** | PHP 8 (roteamento leve com JSON APIs REST) |
-| **Banco de Dados** | PostgreSQL |
+O backend do **System Milk** foi construído com foco em:
 
----
-
-## ✨ Destaques do Projeto
-
-- Interface moderna e responsiva.
-- Estrutura organizada com Composition API.
-- Feedback visual (toasts, modais e mensagens de erro).
-- Cálculo automático de valores e validação de campos.
-- Filtros por período, categoria e busca textual.
-- API RESTful padronizada (`/leite`, `/lucros`, etc.).
+- **Arquitetura simples e eficiente**  
+- **Roteamento leve** escrito à mão (`Routes.php`)
+- **Respostas JSON padronizadas**
+- **Integração com PostgreSQL**
+- **Testes automatizados com PHPUnit**
+- **Endpoints RESTful por módulos (leite, lucros, animais, usuários)**
 
 ---
 
-## 🔗 Links Rápidos
+## 🧩 Funcionalidades principais
 
-- **Frontend:** `frontend/src/views/Lucro.vue`
-- **HTTP Client:** `frontend/src/lib/http.js`
-- **Rotas de API:** `backend/routes/`
-- **Schema do Banco:** `database/schema.sql`
+### 🐄 Animais
+- Cadastro de vacas
+- Listagem
+- Atualização
+- Exclusão
+- Endpoint de integração para o frontend
+
+### 🥛 Produção de Leite
+- Registro de produção diária
+- Turno, temperatura, tipo, qualidade, responsável e armazenamento
+- Relatórios mensais (via frontend)
+
+### 💰 Financeiro
+- **Lucros**  
+  - Categoria  
+  - Fonte  
+  - Pagamentos  
+  - NF-e  
+  - Datas de vencimento e recebimento  
+- **Despesas (em desenvolvimento)**  
+  - Categoria / Subcategoria  
+  - Prioridade  
+  - Fluxo de pagamento  
+
+### 👤 Usuários
+- Criação de usuários
+- Login
+- Verificação de cargo
+- Autenticação por token (WIP)
 
 ---
 
-## 📌 Status Atual
+## ⚙️ Tecnologias Utilizadas
 
-✅ Módulos de **Leite** e **Lucros** totalmente funcionais.  
-🧩 Ajustes em andamento para padronização de rotas e respostas da API (`POST /lucros`).  
-🚀 Integração futura com módulo de **Despesas** e **Dashboard** de relatórios.
+| Camada        | Tecnologia |
+|---------------|------------|
+| **Linguagem** | PHP 8.2 |
+| **Banco**     | PostgreSQL 13+ |
+| **Testes**    | PHPUnit |
+| **Servidor Dev** | PHP Built-in Server |
+| **Arquitetura** | Controllers + DAO + Router minimalista |
 
 ---
 
-# 🛠️ Parte 2 — Setup Local (Frontend + Backend + Banco)
+# 🛠️ Instalação e Setup (Local)
 
-> Pré-requisitos: **Node 18+**, **npm** ou **pnpm**, **PHP 8.1+**, **PostgreSQL 13+**.
+## 1. Clonar o repositório
 
-### Clonar o projeto
 ```bash
-git clone https://github.com/SEU_USUARIO/system-milk.git
-cd system-milk
+git clone https://github.com/SEU_USUARIO/system-milk-backend.git
+cd system-milk-backend
 ```
 
-### Backend (PHP)
+## 2. Configurar Banco de Dados
 
-## Estrutura sugerida:
+Crie o banco:
 ```
-backend/
-  public/index.php        # ponto de entrada
-  routes/                 # define endpoints (ex.: /lucros, /leite)
-  src/                    # controllers/services/dao
+CREATE DATABASE system_milk;
 ```
-
-### Variáveis de ambiente (crie backend/.env):
+Edite o arquivo conexao.php:
 ```
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=system_milk
-DB_USER=system_milk_user
-DB_PASS=system_milk_pass
-
-# CORS (ajuste conforme porta do front)
-CORS_ORIGIN=http://localhost:5173
+$host = "localhost";
+$db   = "system_milk";
+$user = "postgres";
+$pass = "SUA_SENHA";
 ```
 
-### Subir servidor PHP (dev)
+## 3. Subir API (modo desenvolvimento)
 ```
-cd backend
-php -S localhost:8001 -t public
+php -S localhost:8001 index.php
+```
+A API ficará disponível em:
+```
+http://localhost:8001
+```
+# 🧪 Testes Automatizados (PHPUnit)
+
+## O projeto contém testes de unidade, integração e rotas.
+
+📌 Rodar todos os testes
+```
+php vendor/bin/phpunit
+```
+📌 Rodar testes individuais
+
+Usuários
+```
+php vendor/bin/phpunit tests/UsuarioTest.php
+```
+Vacas
+```
+php vendor/bin/phpunit tests/VacaTest.php
+```
+Rotas
+```
+php vendor/bin/phpunit tests/RoutesTest.php
+```
+Endpoints reais (precisa do servidor ativo)
+```
+php vendor/bin/phpunit tests/AnimaisEndpointsTest.php
 ```
 
+## ☑️ Status atual dos testes
 
+🟢 UsuarioTest.php — OK
+🟢 VacaTest.php — OK
+🟢 RoutesTest.php — OK
+🟢 AnimaisEndpointsTest.php — OK
 
+##🌐 Endpoints Principais
+🐄 Vacas
+Método	      Rota	        Descrição
+GET	          /vacas	      Lista todas as vacas
+POST	        /vacas	      Cria uma vaca
+PUT	          /vacas/{id}	  Atualiza
+DELETE	      /vacas/{id}	  Exclui
 
+##🥛 Leite
+Método	      Rota	        Descrição
+GET	          /leite	      Lista produção
+POST	        /leite	      Registra produção
 
+##💰 Lucros
+Método	       Rota	        Descrição
+GET	           /lucros	    Lista lucros
+POST	          /lucros	     Cria novo lucro
 
+##🤝 Contribuição
 
+Pull requests são bem-vindos!
+Antes de contribuir:
 
+1. Crie uma branch
+2. Rode todos os testes
+3. Abra o PR com descrição clara
+```
+git checkout -b feature/minha-feature
+git commit -m "feat: implementei X"
+git push origin feature/minha-feature
+```
 
+##📣 Observação importante
 
-
-
-
-
-
+➡️ O frontend Vue 3 está em outro repositório e se integra a este backend via HTTP na porta 8001.
+➡️ O README do frontend será criado separadamente.
 
 
 
