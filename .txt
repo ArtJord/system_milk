@@ -17,3 +17,22 @@ build: configura script de build para produção
 ci: corrige pipeline de testes no GitHub Actions
 
 revert: reverte commit 2a3b4c5 por erro na lógica
+
+1) UsuarioTest.php
+php vendor\bin\phpunit tests\UsuarioTest.php
+
+2) VacaTest.php
+php vendor\bin\phpunit tests\VacaTest.php
+
+3) RoutesTest.php
+php vendor\bin\phpunit tests\RoutesTest.php
+
+4) AnimaisEndpointsTest.php
+
+(servidor rodando em localhost:8001)
+
+php vendor\bin\phpunit tests\AnimaisEndpointsTest.php
+
+RODAR TODOS OS TESTES
+php vendor\bin\phpunit
+
