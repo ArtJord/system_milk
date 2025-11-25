@@ -134,7 +134,7 @@ php vendor/bin/phpunit tests/AnimaisEndpointsTest.php
 🟢 RoutesTest.php — OK
 🟢 AnimaisEndpointsTest.php — OK
 
-##🌐 Endpoints Principais
+## 🌐 Endpoints Principais
 🐄 Vacas
 Método	      Rota	        Descrição
 GET	          /vacas	      Lista todas as vacas
@@ -142,17 +142,17 @@ POST	        /vacas	      Cria uma vaca
 PUT	          /vacas/{id}	  Atualiza
 DELETE	      /vacas/{id}	  Exclui
 
-##🥛 Leite
+## 🥛 Leite
 Método	      Rota	        Descrição
 GET	          /leite	      Lista produção
 POST	        /leite	      Registra produção
 
-##💰 Lucros
+## 💰 Lucros
 Método	       Rota	        Descrição
 GET	           /lucros	    Lista lucros
 POST	          /lucros	     Cria novo lucro
 
-##🤝 Contribuição
+## 🤝 Contribuição
 
 Pull requests são bem-vindos!
 Antes de contribuir:
@@ -166,7 +166,7 @@ git commit -m "feat: implementei X"
 git push origin feature/minha-feature
 ```
 
-##📣 Observação importante
+## 📣 Observação importante
 
 ➡️ O frontend Vue 3 está em outro repositório e se integra a este backend via HTTP na porta 8001.
 ➡️ O README do frontend será criado separadamente.
